@@ -1,0 +1,30 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+input:focus {
+  border-color: #C8601A !important;
+  box-shadow: 0 0 0 3px rgba(200, 96, 26, 0.1);
+}
+
+select:focus {
+  border-color: #C8601A !important;
+  box-shadow: 0 0 0 3px rgba(200, 96, 26, 0.1);
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
