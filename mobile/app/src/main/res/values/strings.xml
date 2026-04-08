@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LocalLoop</string>
+    <string name="app_tagline">Your barangay, connected.</string>
+
+    <string name="welcome_back">Welcome back 👋</string>
+    <string name="login_subtitle">Log in to your LocalLoop account.</string>
+    <string name="email_address">Email address</string>
+    <string name="password">Password</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="btn_login">Log In</string>
+    <string name="or_divider">or</string>
+    <string name="btn_google">Continue with Google</string>
+    <string name="no_account">Don\'t have an account? </string>
+    <string name="sign_up">Sign up</string>
+
+    <string name="join_barangay">Join your barangay 🏡</string>
+    <string name="register_subtitle">Create your LocalLoop account.</string>
+    <string name="full_name">Full Name</string>
+    <string name="hint_full_name">Juan dela Cruz</string>
+    <string name="hint_email">you@email.com</string>
+    <string name="hint_password">Min. 8 characters</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="hint_confirm_password">Re-enter your password</string>
+    <string name="your_barangay">Your Barangay</string>
+    <string name="hint_select_barangay">Select your barangay</string>
+    <string name="btn_create_account">Create Account</string>
+    <string name="already_have_account">Already have an account? </string>
+    <string name="log_in">Log in</string>
+    <string name="password_hint_note">Must be at least 8 characters</string>
+    <string name="logout">Logout</string>
+    <string name="barangay_display">Barangay: %1$s</string>
+
+    <string name="error_required">This field is required</string>
+    <string name="error_invalid_email">Please enter a valid email address</string>
+    <string name="error_password_length">Password must be at least 8 characters</string>
+    <string name="error_password_mismatch">Passwords do not match</string>
+    <string name="error_select_barangay">Please select your barangay</string>
+    <string name="error_generic">Something went wrong. Please try again.</string>
+    <string name="error_invalid_credentials">Invalid email or password.</string>
+    <string name="error_duplicate_email">This email is already registered.</string>
+    <string name="error_no_internet">No internet connection. Please check your network.</string>
+
+    <string-array name="cebu_city_barangays">
+        <item>Select your barangay</item>
+        <item>Adlaon</item>
+        <item>Agsungot</item>
+        <item>Apas</item>
+        <item>Bacayan</item>
+        <item>Banilad</item>
+        <item>Basak Pardo</item>
+        <item>Basak San Nicolas</item>
+        <item>Binaliw</item>
+        <item>Budlaan</item>
+        <item>Bulacao</item>
+        <item>Busay</item>
+        <item>Calamba</item>
+        <item>Capitol Site</item>
+        <item>Carreta</item>
+        <item>Central Poblacion</item>
+        <item>Cogon Pardo</item>
+        <item>Cogon Ramos</item>
+        <item>Duljo</item>
+        <item>Ermita</item>
+        <item>Guadalupe</item>
+        <item>Guba</item>
+        <item>Hippodromo</item>
+        <item>Inayawan</item>
+        <item>Kalubihan</item>
+        <item>Kalunasan</item>
+        <item>Kamagayan</item>
+        <item>Kasambagan</item>
+        <item>Labangon</item>
+        <item>Lahug</item>
+        <item>Lorega San Miguel</item>
+        <item>Lusaran</item>
+        <item>Luz</item>
+        <item>Mabini</item>
+        <item>Mabolo</item>
+        <item>Malubog</item>
+        <item>Mambaling</item>
+        <item>Pahina Central</item>
+        <item>Pahina San Nicolas</item>
+        <item>Pamutan</item>
+        <item>Pardo</item>
+        <item>Pari-an</item>
+        <item>Paril</item>
+        <item>Pasil</item>
+        <item>Pit-os</item>
+        <item>Poblacion Pardo</item>
+        <item>Punta Princesa</item>
+        <item>Quiot Pardo</item>
+        <item>Sambag I</item>
+        <item>Sambag II</item>
+        <item>San Antonio</item>
+        <item>San Jose</item>
+        <item>San Nicolas Central</item>
+        <item>San Roque</item>
+        <item>Santa Cruz</item>
+        <item>Santo Nino</item>
+        <item>Sapangdaku</item>
+        <item>Sawang Calero</item>
+        <item>Sinsin</item>
+        <item>Sirao</item>
+        <item>Suba Pasil</item>
+        <item>Sudlon I</item>
+        <item>Sudlon II</item>
+        <item>T. Padilla</item>
+        <item>Tabunan</item>
+        <item>Tagbao</item>
+        <item>Talamban</item>
+        <item>Taptap</item>
+        <item>Tejero</item>
+        <item>Tinago</item>
+        <item>Tisa</item>
+        <item>To-og</item>
+        <item>Toong</item>
+        <item>Zapatera</item>
+    </string-array>
+</resources>

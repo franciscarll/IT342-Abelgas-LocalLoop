@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#C8601A</color>
+    <color name="primary_dark">#A34F14</color>
+    <color name="primary_light">#E8894A</color>
+    <color name="primary_very_light">#FDE8D8</color>
+
+    <color name="background_cream">#FAF7F2</color>
+    <color name="background_header">#C8601A</color>
+    <color name="card_white">#FFFFFF</color>
+
+    <color name="text_primary">#1A1A1A</color>
+    <color name="text_secondary">#6B6B6B</color>
+    <color name="text_hint">#AAAAAA</color>
+    <color name="text_white">#FFFFFF</color>
+    <color name="text_link">#C8601A</color>
+    <color name="text_error">#D32F2F</color>
+
+    <color name="input_background">#FFFFFF</color>
+    <color name="input_border">#E0D9CF</color>
+    <color name="input_border_focused">#C8601A</color>
+
+    <color name="divider">#E0D9CF</color>
+
+    <color name="status_open">#C8601A</color>
+    <color name="status_claimed">#1976D2</color>
+    <color name="status_completed">#388E3C</color>
+</resources>
