@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import api from '../api/axios';
+import ApiClient from '../api/ApiClient';
+const api = ApiClient.getInstance();
 import Navbar from '../components/Navbar';
 
 // ── Utilities ──────────────────────────────────────────────────────────────────
