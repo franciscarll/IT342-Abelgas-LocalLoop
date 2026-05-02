@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import ApiClient from '../api/ApiClient';
-const api = ApiClient.getInstance();
+import api from '../api/axios';
 import Navbar from '../components/Navbar';
 
 // ─── Utility: time ago ────────────────────────────────────────────────────────
@@ -172,7 +171,10 @@ const DashboardPage = () => {
     finally { setFavorsLoading(false); setLoadingMore(false); }
   };
 
+  // ── CHANGE 1: guard against claiming own favor ──────────────────────────────
   const handleClaim = async (favorId) => {
+    const favor = favors.find(f => f.id === favorId);
+    if (favor && favor.requesterId === user?.id) return;
     try {
       await api.post(`/favors/${favorId}/claim`);
       setFavors(prev => prev.filter(f => f.id !== favorId));
@@ -241,7 +243,10 @@ const DashboardPage = () => {
               </div>
             ) : (
               <>
-                {favors.map(favor => <FavorCard key={favor.id} favor={favor} onClaim={handleClaim} />)}
+                {/* ── CHANGE 2: pass currentUserId to FavorCard ── */}
+                {favors.map(favor => (
+                  <FavorCard key={favor.id} favor={favor} onClaim={handleClaim} currentUserId={user?.id} />
+                ))}
                 {hasMore && (
                   <button style={s.loadMoreBtn} onClick={() => { const n = page + 1; setPage(n); fetchFavors(n); }} disabled={loadingMore}>
                     {loadingMore ? 'Loading…' : 'Load more favors'}
@@ -338,10 +343,13 @@ const DashboardPage = () => {
 };
 
 // ── FavorCard sub-component ────────────────────────────────────────────────────
-const FavorCard = ({ favor, onClaim }) => {
+// ── CHANGE 3: accept currentUserId, show "Your Favor" badge if own favor ──────
+const FavorCard = ({ favor, onClaim, currentUserId }) => {
+  const isOwnFavor = currentUserId && favor.requesterId === currentUserId;
   const [hovered, setHovered] = useState(false);
   const category = favor.category || 'Other';
   const tagColor = CATEGORY_TAG_COLORS[category] || CATEGORY_TAG_COLORS.Other;
+
   return (
     <div style={{ ...s.favorCard, ...(hovered ? s.favorCardHover : {}) }}
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
@@ -363,12 +371,17 @@ const FavorCard = ({ favor, onClaim }) => {
           <span style={s.favorMetaText}>{timeAgo(favor.createdAt)}</span>
         </div>
       </div>
-      <button style={s.claimBtn} onClick={() => onClaim(favor.id)}>Claim</button>
+
+      {isOwnFavor ? (
+        <div style={s.ownFavorBadge}>Your Favor</div>
+      ) : (
+        <button style={s.claimBtn} onClick={() => onClaim(favor.id)}>Claim</button>
+      )}
     </div>
   );
 };
 
-// ── Styles (identical to original DashboardPage styles) ───────────────────────
+// ── Styles ────────────────────────────────────────────────────────────────────
 const s = {
   page: { minHeight: '100vh', background: '#FAF7F2', fontFamily: "'Segoe UI', sans-serif", position: 'relative' },
   content: { display: 'flex', gap: '24px', maxWidth: '1200px', margin: '0 auto', padding: '36px 32px' },
@@ -398,6 +411,8 @@ const s = {
   favorMetaText: { fontSize: '12px', color: '#888' },
   favorDot: { fontSize: '12px', color: '#ccc' },
   claimBtn: { padding: '8px 18px', borderRadius: '10px', border: 'none', background: '#C8601A', color: 'white', fontSize: '13px', fontWeight: '600', cursor: 'pointer', flexShrink: 0, alignSelf: 'center' },
+  // ── CHANGE 3 (style): new badge for own favors ─────────────────────────────
+  ownFavorBadge: { padding: '7px 14px', borderRadius: '10px', border: '1.5px solid #e8e8e8', background: '#f9f9f9', color: '#bbb', fontSize: '12px', fontWeight: '600', flexShrink: 0, alignSelf: 'center', cursor: 'default', whiteSpace: 'nowrap' },
   loadMoreBtn: { width: '100%', padding: '12px', background: 'none', border: 'none', color: '#C8601A', fontSize: '14px', fontWeight: '500', cursor: 'pointer', marginTop: '4px' },
   loadingBox: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '20px 0' },
   spinner: { width: '24px', height: '24px', border: '3px solid #f0ece6', borderTop: '3px solid #C8601A', borderRadius: '50%', animation: 'spin 0.7s linear infinite' },

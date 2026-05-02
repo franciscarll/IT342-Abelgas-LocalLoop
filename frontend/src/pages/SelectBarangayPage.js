@@ -45,15 +45,34 @@ const SelectBarangayPage = () => {
       return;
     }
     setLoading(true);
+    setError('');
     try {
-      await api.put('/profile', { barangay });
-    } catch (err) {
-      // Continue even if API fails
-    } finally {
-      // Always update local user and redirect
-      const updatedUser = { ...user, barangay };
-      login(updatedUser, token);
+      // ── FIX: Actually save to the database ──────────────────────────────
+      // Calls PUT /api/users/profile — saves barangay to the users table.
+      // This was silently failing before because the endpoint didn't exist,
+      // meaning the DB kept "Not set" and caused the redirect loop on every login.
+      const res = await api.put('/users/profile', { barangay });
+
+      // Use the fresh user data returned from the server if available,
+      // otherwise fall back to merging the selected barangay into local user.
+      const savedUser = res.data?.data || { ...user, barangay };
+
+      // ── FIX: Update AuthContext + localStorage with real saved barangay ─
+      // Ensures future logins read the correct barangay from localStorage
+      // until the JWT is refreshed.
+      login(savedUser, token);
+
       navigate('/dashboard', { replace: true });
+    } catch (err) {
+      // ── FIX: Show the error instead of silently swallowing it ────────────
+      // Previously the catch block said "Continue even if API fails" which
+      // hid the 404 and let the user appear to succeed while DB was unchanged.
+      console.error('Failed to save barangay:', err);
+      setError(
+        err.response?.data?.error?.message ||
+        'Failed to save your barangay. Please try again.'
+      );
+    } finally {
       setLoading(false);
     }
   };

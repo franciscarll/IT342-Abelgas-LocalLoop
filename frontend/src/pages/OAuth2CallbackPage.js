@@ -16,7 +16,14 @@ const OAuth2CallbackPage = () => {
     const reputationScore = searchParams.get('reputationScore');
 
     if (token) {
-      const user = { id, name, email, barangay, role, reputationScore };
+      const user = {
+        id: id ? parseInt(id, 10) : null,
+        name,
+        email,
+        barangay,
+        role,
+        reputationScore: reputationScore ? parseInt(reputationScore, 10) : 0,
+      };
       login(user, token);
 
       if (!barangay || barangay === 'Not set') {

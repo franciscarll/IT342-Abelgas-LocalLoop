@@ -2,9 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ApiClient from '../api/ApiClient';
-const api = ApiClient.getInstance();
 import Navbar from '../components/Navbar';
 
+const api = ApiClient.getInstance();
 // ── Utilities ──────────────────────────────────────────────────────────────────
 function timeAgo(dateStr) {
   if (!dateStr) return '';
@@ -154,6 +154,8 @@ const FavorFeedPage = () => {
   };
 
   const handleClaim = async (favorId) => {
+    const favor = favors.find(f => f.id === favorId);
+    if (favor && favor.requesterId === user?.id) return;
     try {
       await api.post(`/favors/${favorId}/claim`);
       setFavors(prev => prev.filter(f => f.id !== favorId));
