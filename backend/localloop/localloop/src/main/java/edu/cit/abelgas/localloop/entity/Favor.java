@@ -64,4 +64,7 @@ public class Favor {
 
     @Column(name = "claimer_name")
     private String claimerName;
+
+    @Column(name = "claimed_at")
+    private LocalDateTime claimedAt;
 }

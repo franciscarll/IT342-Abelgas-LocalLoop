@@ -343,26 +343,38 @@ const DashboardPage = () => {
 };
 
 // ── FavorCard sub-component ────────────────────────────────────────────────────
-// ── CHANGE 3: accept currentUserId, show "Your Favor" badge if own favor ──────
 const FavorCard = ({ favor, onClaim, currentUserId }) => {
+  const navigate = useNavigate();                    // ← ADD THIS LINE
   const isOwnFavor = currentUserId && favor.requesterId === currentUserId;
   const [hovered, setHovered] = useState(false);
   const category = favor.category || 'Other';
   const tagColor = CATEGORY_TAG_COLORS[category] || CATEGORY_TAG_COLORS.Other;
 
   return (
-    <div style={{ ...s.favorCard, ...(hovered ? s.favorCardHover : {}) }}
-      onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+    <div
+      style={{
+        ...s.favorCard,
+        ...(hovered ? s.favorCardHover : {}),
+        cursor: 'pointer',                           // ← make whole card look clickable
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={() => navigate(`/favors/${favor.id}`)} // ← navigate to detail on click
+    >
       <div style={s.favorIcon}>{CATEGORY_ICONS[category] || CATEGORY_ICONS.Other}</div>
       <div style={s.favorContent}>
         <div style={s.favorTopRow}>
           <h3 style={s.favorTitle}>{favor.title}</h3>
-          <span style={{ ...s.categoryTag, background: tagColor.bg, color: tagColor.text }}>{category}</span>
+          <span style={{ ...s.categoryTag, background: tagColor.bg, color: tagColor.text }}>
+            {category}
+          </span>
         </div>
         <p style={s.favorDescription}>{favor.description}</p>
         <div style={s.favorMeta}>
           <div style={s.requesterAvatar}>
-            <div style={{ ...s.miniAvatar, background: avatarColor(favor.requesterName || '') }}>{initials(favor.requesterName || '?')}</div>
+            <div style={{ ...s.miniAvatar, background: avatarColor(favor.requesterName || '') }}>
+              {initials(favor.requesterName || '?')}
+            </div>
             <span style={s.favorMetaText}>{favor.requesterName}</span>
           </div>
           <span style={s.favorDot}>·</span>
@@ -375,7 +387,15 @@ const FavorCard = ({ favor, onClaim, currentUserId }) => {
       {isOwnFavor ? (
         <div style={s.ownFavorBadge}>Your Favor</div>
       ) : (
-        <button style={s.claimBtn} onClick={() => onClaim(favor.id)}>Claim</button>
+        <button
+          style={s.claimBtn}
+          onClick={(e) => {
+            e.stopPropagation();                     // ← prevent card click from firing
+            onClaim(favor.id);
+          }}
+        >
+          Claim
+        </button>
       )}
     </div>
   );

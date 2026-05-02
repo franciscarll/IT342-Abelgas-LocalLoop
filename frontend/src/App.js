@@ -10,6 +10,7 @@ import SelectBarangayPage from './pages/SelectBarangayPage';
 import FavorFeedPage from './pages/FavorFeedPage';
 import CreateFavorPage from './pages/CreateFavorPage';
 import FavorDetailPage from './pages/FavorDetailPage';
+import MyActivityPage from './pages/MyActivityPage';
 
 function App() {
   return (
@@ -35,6 +36,9 @@ function App() {
           } />
           <Route path="/favors/:id" element={
             <ProtectedRoute><FavorDetailPage /></ProtectedRoute>
+          } />
+          <Route path="/my-activity" element={
+            <ProtectedRoute><MyActivityPage /></ProtectedRoute>
           } />
         </Routes>
       </BrowserRouter>

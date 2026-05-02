@@ -52,7 +52,6 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable())
                 // Configure OAuth2 login
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login")
                         .successHandler(oAuth2SuccessHandler)
                         .failureUrl("http://localhost:3000/login?error=true")
                 )

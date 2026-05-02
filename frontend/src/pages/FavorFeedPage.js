@@ -367,22 +367,26 @@ const FavorFeedPage = () => {
   );
 };
 
-// ══════════════════════════════════════════════════════════════════════════════
-// FAVOR CARD (Feed version — shows status badge, Claim Favor button)
-// ══════════════════════════════════════════════════════════════════════════════
 const FeedFavorCard = ({ favor, onClaim, currentUserId }) => {
+  const navigate = useNavigate();                     // ← ADD THIS LINE
   const [hovered, setHovered] = useState(false);
-  const category = favor.category || 'Other';
-  const status = favor.status || 'OPEN';
-  const tagColor = CATEGORY_TAG_COLORS[category] || CATEGORY_TAG_COLORS.Other;
-  const statusColor = STATUS_COLORS[status] || STATUS_COLORS.OPEN;
-  const isOwn = favor.requesterId === currentUserId;
+
+  const category    = favor.category || 'Other';
+  const status      = favor.status   || 'OPEN';
+  const tagColor    = CATEGORY_TAG_COLORS[category] || CATEGORY_TAG_COLORS.Other;
+  const statusColor = STATUS_COLORS[status]         || STATUS_COLORS.OPEN;
+  const isOwn       = favor.requesterId === currentUserId;
 
   return (
     <div
-      style={{ ...s.favorCard, ...(hovered ? s.favorCardHover : {}) }}
+      style={{
+        ...s.favorCard,
+        ...(hovered ? s.favorCardHover : {}),
+        cursor: 'pointer',                            // ← whole card is clickable
+      }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onClick={() => navigate(`/favors/${favor.id}`)} // ← navigate to detail
     >
       {/* Category icon */}
       <div style={s.favorIconBox}>
@@ -394,11 +398,14 @@ const FeedFavorCard = ({ favor, onClaim, currentUserId }) => {
         {/* Top row: title + status badge */}
         <div style={s.favorTopRow}>
           <h3 style={s.favorTitle}>{favor.title}</h3>
-          <span style={{ ...s.statusBadge, background: statusColor.bg, color: statusColor.text }}>
+          <span style={{
+            ...s.statusBadge,
+            background: statusColor.bg,
+            color: statusColor.text,
+          }}>
             {status}
           </span>
         </div>
-
         <p style={s.favorDescription}>{favor.description}</p>
 
         {/* Meta row */}
@@ -419,16 +426,29 @@ const FeedFavorCard = ({ favor, onClaim, currentUserId }) => {
         <span style={{ ...s.categoryTag, background: tagColor.bg, color: tagColor.text }}>
           {category}
         </span>
+
         {status === 'OPEN' && !isOwn && (
-          <button style={s.claimBtn} onClick={() => onClaim(favor.id)}>
+          <button
+            style={s.claimBtn}
+            onClick={(e) => {
+              e.stopPropagation();                    // ← don't also navigate
+              onClaim(favor.id);
+            }}
+          >
             Claim Favor
           </button>
         )}
+
         {status === 'OPEN' && isOwn && (
-          <button style={s.ownFavorBtn} disabled>Your Favor</button>
+          <button style={s.ownFavorBtn} disabled onClick={(e) => e.stopPropagation()}>
+            Your Favor
+          </button>
         )}
+
         {status !== 'OPEN' && (
-          <button style={s.claimedBtn} disabled>{status === 'CLAIMED' ? 'Claimed' : 'Completed'}</button>
+          <button style={s.claimedBtn} disabled onClick={(e) => e.stopPropagation()}>
+            {status === 'CLAIMED' ? 'Claimed' : 'Completed'}
+          </button>
         )}
       </div>
     </div>

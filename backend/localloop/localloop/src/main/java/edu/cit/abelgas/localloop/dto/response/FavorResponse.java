@@ -28,6 +28,7 @@ public class FavorResponse {
     // Dates
     private LocalDate dateNeeded;
     private LocalDateTime createdAt;
+    private LocalDateTime claimedAt;
     private LocalDateTime completedAt;
     private LocalDateTime updatedAt;
 }
