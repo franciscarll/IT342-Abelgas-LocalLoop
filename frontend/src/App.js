@@ -11,6 +11,8 @@ import FavorFeedPage from './pages/FavorFeedPage';
 import CreateFavorPage from './pages/CreateFavorPage';
 import FavorDetailPage from './pages/FavorDetailPage';
 import MyActivityPage from './pages/MyActivityPage';
+import AnnouncementsPage from './pages/AnnouncementsPage';           // ← NEW
+import AdminAnnouncementsPage from './pages/AdminAnnouncementsPage'; // ← NEW
 
 function App() {
   return (
@@ -39,6 +41,19 @@ function App() {
           } />
           <Route path="/my-activity" element={
             <ProtectedRoute><MyActivityPage /></ProtectedRoute>
+          } />
+
+          {/* ── Announcements ── */}
+          <Route path="/announcements" element={
+            <ProtectedRoute><AnnouncementsPage /></ProtectedRoute>
+          } />
+          {/*
+            Admin page: protected by ProtectedRoute (must be logged in).
+            Additional ROLE_ADMIN guard is inside AdminAnnouncementsPage itself —
+            it redirects non-admins to /announcements immediately.
+          */}
+          <Route path="/admin/announcements" element={
+            <ProtectedRoute><AdminAnnouncementsPage /></ProtectedRoute>
           } />
         </Routes>
       </BrowserRouter>
