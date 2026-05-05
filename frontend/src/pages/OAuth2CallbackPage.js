@@ -7,22 +7,25 @@ const OAuth2CallbackPage = () => {
   const { login } = useAuth();
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    const id = searchParams.get('id');
-    const name = searchParams.get('name');
-    const email = searchParams.get('email');
-    const barangay = searchParams.get('barangay');
-    const role = searchParams.get('role');
+    const token          = searchParams.get('token');
+    const id             = searchParams.get('id');
+    const name           = searchParams.get('name');
+    const email          = searchParams.get('email');
+    const barangay       = searchParams.get('barangay');
+    const role           = searchParams.get('role');
     const reputationScore = searchParams.get('reputationScore');
+    // ── NEW: read hasPassword so ProfilePage knows which form to show ─────────
+    const hasPassword    = searchParams.get('hasPassword') === 'true';
 
     if (token) {
       const user = {
-        id: id ? parseInt(id, 10) : null,
+        id:             id ? parseInt(id, 10) : null,
         name,
         email,
         barangay,
         role,
         reputationScore: reputationScore ? parseInt(reputationScore, 10) : 0,
+        hasPassword,     // ← stored in AuthContext + localStorage
       };
       login(user, token);
 

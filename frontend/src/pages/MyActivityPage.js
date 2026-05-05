@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
@@ -77,25 +77,30 @@ const MyActivityPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  // FIX: Store user in a ref so useCallback deps stay stable.
+  // Previously fetchReputation had [user] as a dep, causing re-runs whenever
+  // anything touched the user object in AuthContext.
+  const userRef = useRef(user);
+  useEffect(() => { userRef.current = user; }, [user]);
+
   const [activeTab, setActiveTab] = useState('posted');
 
-  // Data
-  const [postedFavors, setPostedFavors]       = useState([]);
-  const [claimedFavors, setClaimedFavors]     = useState([]);
+  const [postedFavors,    setPostedFavors]    = useState([]);
+  const [claimedFavors,   setClaimedFavors]   = useState([]);
   const [completedFavors, setCompletedFavors] = useState([]);
-  const [reputation, setReputation]           = useState(null);
+  const [reputation,      setReputation]      = useState(null);
 
-  // Loading / error
-  const [loadingPosted,    setLoadingPosted]    = useState(true);
-  const [loadingClaimed,   setLoadingClaimed]   = useState(true);
-  const [loadingReputation,setLoadingReputation]= useState(true);
-  const [error,            setError]            = useState('');
+  const [loadingPosted,     setLoadingPosted]     = useState(true);
+  const [loadingClaimed,    setLoadingClaimed]     = useState(true);
+  const [loadingReputation, setLoadingReputation]  = useState(true);
 
-  // Action state
-  const [actionLoading, setActionLoading] = useState(null); // stores favor id being acted on
-  const [deleteConfirm, setDeleteConfirm] = useState(null); // stores favor id pending delete
+  const [actionLoading, setActionLoading] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  // ── Fetch posted favors ───────────────────────────────────────────────────
+  // FIX: All three fetch functions have empty [] deps.
+  // They are created once, never recreated, so the useEffect that calls them
+  // also only fires once — eliminating the query loop entirely.
+
   const fetchPosted = useCallback(async () => {
     setLoadingPosted(true);
     try {
@@ -104,13 +109,12 @@ const MyActivityPage = () => {
       const list = data?.content || data || [];
       setPostedFavors(list);
     } catch {
-      setError('Could not load your posted favors.');
+      // silently fail
     } finally {
       setLoadingPosted(false);
     }
-  }, []);
+  }, []); // ← empty deps: created once
 
-  // ── Fetch claimed favors (split into claimed + completed) ─────────────────
   const fetchClaimed = useCallback(async () => {
     setLoadingClaimed(true);
     try {
@@ -120,32 +124,37 @@ const MyActivityPage = () => {
       setClaimedFavors(list.filter(f => f.status === 'CLAIMED'));
       setCompletedFavors(list.filter(f => f.status === 'COMPLETED'));
     } catch {
-      setError('Could not load your claimed favors.');
+      // silently fail
     } finally {
       setLoadingClaimed(false);
     }
-  }, []);
+  }, []); // ← empty deps: created once
 
-  // ── Fetch reputation stats ────────────────────────────────────────────────
   const fetchReputation = useCallback(async () => {
     setLoadingReputation(true);
     try {
       const res = await api.get('/users/me/reputation');
       setReputation(res.data?.data || res.data);
     } catch {
-      setReputation({ reputationScore: user?.reputationScore ?? 0, favorsPosted: 0, favorsCompleted: 0 });
+      // Fall back to cached user data from ref — does not trigger re-renders
+      setReputation({
+        reputationScore: userRef.current?.reputationScore ?? 0,
+        favorsPosted:    0,
+        favorsCompleted: 0,
+      });
     } finally {
       setLoadingReputation(false);
     }
-  }, [user]);
+  }, []); // ← empty deps: created once
 
+  // Runs once on mount — fetchPosted/fetchClaimed/fetchReputation are stable
   useEffect(() => {
     fetchPosted();
     fetchClaimed();
     fetchReputation();
   }, [fetchPosted, fetchClaimed, fetchReputation]);
 
-  // ── Delete a favor ────────────────────────────────────────────────────────
+  // ── Delete ────────────────────────────────────────────────────────────────
   const handleDelete = async (favorId) => {
     setActionLoading(favorId);
     try {
@@ -177,15 +186,15 @@ const MyActivityPage = () => {
   };
 
   // ── Derived stats ─────────────────────────────────────────────────────────
-  const postedCount    = postedFavors.length;
-  const claimedCount   = claimedFavors.length;
-  const completedCount = completedFavors.length;
-  const openCount      = postedFavors.filter(f => f.status === 'OPEN').length;
+  const postedCount          = postedFavors.length;
+  const claimedCount         = claimedFavors.length;
+  const completedCount       = completedFavors.length;
+  const openCount            = postedFavors.filter(f => f.status === 'OPEN').length;
   const postedClaimedCount   = postedFavors.filter(f => f.status === 'CLAIMED').length;
   const postedCompletedCount = postedFavors.filter(f => f.status === 'COMPLETED').length;
-  const completionRate = postedCount > 0 ? Math.round((postedCompletedCount / postedCount) * 100) : 0;
+  const completionRate       = postedCount > 0
+    ? Math.round((postedCompletedCount / postedCount) * 100) : 0;
 
-  // ── Tab config ────────────────────────────────────────────────────────────
   const tabs = [
     { key: 'posted',    label: 'Posted Favors',    count: postedCount },
     { key: 'claimed',   label: 'Claimed Favors',   count: claimedCount },
@@ -195,12 +204,10 @@ const MyActivityPage = () => {
   return (
     <div style={s.page}>
       <Navbar />
-
       <div style={s.content}>
+
         {/* ── MAIN COLUMN ── */}
         <div style={s.mainCol}>
-
-          {/* Page heading */}
           <h1 style={s.pageTitle}>My Activity</h1>
           <p style={s.pageSubtitle}>Track all your posted, claimed, and completed favors.</p>
 
@@ -244,7 +251,7 @@ const MyActivityPage = () => {
             ))}
           </div>
 
-          {/* Tab content */}
+          {/* Posted Favors */}
           {activeTab === 'posted' && (
             <div>
               <div style={s.tabContentHeader}>
@@ -253,10 +260,7 @@ const MyActivityPage = () => {
                   Post a new favor →
                 </span>
               </div>
-
-              {loadingPosted ? (
-                <LoadingBox />
-              ) : postedFavors.length === 0 ? (
+              {loadingPosted ? <LoadingBox /> : postedFavors.length === 0 ? (
                 <EmptyBox message="You haven't posted any favors yet." />
               ) : (
                 postedFavors.map(favor => (
@@ -277,16 +281,14 @@ const MyActivityPage = () => {
             </div>
           )}
 
+          {/* Claimed Favors */}
           {activeTab === 'claimed' && (
             <div>
-              <h2 style={s.tabContentTitle}>Favors You're Helping With</h2>
+              <h2 style={{ ...s.tabContentTitle, marginBottom: '8px' }}>Favors You're Helping With</h2>
               <p style={{ ...s.pageSubtitle, marginBottom: '20px' }}>
                 These are favors you claimed from neighbors.
               </p>
-
-              {loadingClaimed ? (
-                <LoadingBox />
-              ) : claimedFavors.length === 0 ? (
+              {loadingClaimed ? <LoadingBox /> : claimedFavors.length === 0 ? (
                 <EmptyBox message="You haven't claimed any favors yet." />
               ) : (
                 claimedFavors.map(favor => (
@@ -300,16 +302,14 @@ const MyActivityPage = () => {
             </div>
           )}
 
+          {/* Completed Favors */}
           {activeTab === 'completed' && (
             <div>
-              <h2 style={s.tabContentTitle}>Favors You've Completed</h2>
+              <h2 style={{ ...s.tabContentTitle, marginBottom: '8px' }}>Favors You've Completed</h2>
               <p style={{ ...s.pageSubtitle, marginBottom: '20px' }}>
                 Favors you helped complete. Each one earned you +1 reputation.
               </p>
-
-              {loadingClaimed ? (
-                <LoadingBox />
-              ) : completedFavors.length === 0 ? (
+              {loadingClaimed ? <LoadingBox /> : completedFavors.length === 0 ? (
                 <EmptyBox message="You haven't completed any favors yet." />
               ) : (
                 completedFavors.map(favor => (
@@ -326,16 +326,14 @@ const MyActivityPage = () => {
 
         {/* ── RIGHT SIDEBAR ── */}
         <div style={s.sidebar}>
-
-          {/* Activity Summary */}
           <div style={s.sideCard}>
             <h3 style={s.sideCardTitle}>📊 Activity Summary</h3>
             <div style={s.summaryList}>
               {[
-                { label: 'Open Favors',       value: openCount },
-                { label: 'Claimed Favors',    value: postedClaimedCount },
-                { label: 'Completed Favors',  value: postedCompletedCount },
-                { label: 'Total Posted',      value: postedCount },
+                { label: 'Open Favors',      value: openCount },
+                { label: 'Claimed Favors',   value: postedClaimedCount },
+                { label: 'Completed Favors', value: postedCompletedCount },
+                { label: 'Total Posted',     value: postedCount },
               ].map(({ label, value }) => (
                 <div key={label} style={s.summaryRow}>
                   <span style={s.summaryLabel}>{label}</span>
@@ -349,8 +347,6 @@ const MyActivityPage = () => {
                 </span>
               </div>
             </div>
-
-            {/* Completion Rate */}
             <div style={s.completionSection}>
               <div style={s.completionHeader}>
                 <span style={s.completionLabel}>Completion Rate</span>
@@ -364,7 +360,6 @@ const MyActivityPage = () => {
             </div>
           </div>
 
-          {/* Reputation History */}
           <div style={s.sideCard}>
             <h3 style={s.sideCardTitle}>⭐ Reputation History</h3>
             {loadingClaimed ? (
@@ -388,12 +383,15 @@ const MyActivityPage = () => {
                   ))}
                 </div>
                 <div style={s.repHistoryFooter}>
-                  You've earned <strong>{completedFavors.length} reputation point{completedFavors.length !== 1 ? 's' : ''}</strong> in total. Keep it up! 🎉
+                  You've earned{' '}
+                  <strong>
+                    {completedFavors.length} reputation point{completedFavors.length !== 1 ? 's' : ''}
+                  </strong>{' '}
+                  in total. Keep it up! 🎉
                 </div>
               </>
             )}
           </div>
-
         </div>
       </div>
     </div>
@@ -403,7 +401,6 @@ const MyActivityPage = () => {
 // ══════════════════════════════════════════════════════════════════════════════
 // SUB-COMPONENTS
 // ══════════════════════════════════════════════════════════════════════════════
-
 const StatCard = ({ icon, value, label }) => (
   <div style={s.statCard}>
     <div style={s.statIcon}>{icon}</div>
@@ -427,22 +424,19 @@ const EmptyBox = ({ message }) => (
   </div>
 );
 
-// ── Posted Favor Card ─────────────────────────────────────────────────────────
 const PostedFavorCard = ({
   favor, actionLoading, deleteConfirm,
   onView, onEdit, onDeleteRequest, onDeleteCancel, onDeleteConfirm, onComplete
 }) => {
-  const category = favor.category || 'Other';
+  const category    = favor.category || 'Other';
   const statusColor = STATUS_COLORS[favor.status] || STATUS_COLORS.OPEN;
-  const isDeleting = deleteConfirm === favor.id;
-  const isActing   = actionLoading === favor.id;
+  const isDeleting  = deleteConfirm === favor.id;
+  const isActing    = actionLoading === favor.id;
 
   return (
-    <div style={s.favorCard} onClick={onView}>
+    <div style={{ ...s.favorCard, cursor: 'pointer' }} onClick={onView}>
       <div style={s.favorCardLeft}>
-        <div style={s.favorIconWrap}>
-          {CATEGORY_ICONS[category] || CATEGORY_ICONS.Other}
-        </div>
+        <div style={s.favorIconWrap}>{CATEGORY_ICONS[category] || CATEGORY_ICONS.Other}</div>
         <div style={s.favorCardBody}>
           <div style={s.favorCardTop}>
             <h3 style={s.favorCardTitle}>{favor.title}</h3>
@@ -454,9 +448,7 @@ const PostedFavorCard = ({
           <div style={s.favorCardMeta}>Posted {formatDateShort(favor.createdAt)}</div>
         </div>
       </div>
-
       <div style={s.favorCardActions} onClick={e => e.stopPropagation()}>
-        {/* OPEN → Edit + Delete */}
         {favor.status === 'OPEN' && !isDeleting && (
           <div style={s.actionBtnRow}>
             <button style={s.editBtn} onClick={onEdit} disabled={isActing}>
@@ -468,15 +460,15 @@ const PostedFavorCard = ({
             </button>
             <button style={s.deleteBtn} onClick={onDeleteRequest} disabled={isActing}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
-                <path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+                <path d="M10 11v6M14 11v6"/>
+                <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
               </svg>
               Delete
             </button>
           </div>
         )}
-
-        {/* Delete confirm */}
         {favor.status === 'OPEN' && isDeleting && (
           <div style={s.deleteConfirmBox}>
             <p style={s.deleteConfirmText}>Delete this favor?</p>
@@ -488,8 +480,6 @@ const PostedFavorCard = ({
             </div>
           </div>
         )}
-
-        {/* CLAIMED → Claimer info + Confirm button */}
         {favor.status === 'CLAIMED' && (
           <div style={s.claimedActions}>
             <div style={s.claimedByRow}>
@@ -498,26 +488,13 @@ const PostedFavorCard = ({
               </div>
               <span style={s.claimedByText}>Claimed by {favor.claimerName}</span>
             </div>
-            <button
-              style={{ ...s.confirmBtn, opacity: isActing ? 0.7 : 1 }}
-              onClick={onComplete}
-              disabled={isActing}
-            >
-              {isActing ? (
-                'Confirming…'
-              ) : (
-                <>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                  Confirm Completion
-                </>
+            <button style={{ ...s.confirmBtn, opacity: isActing ? 0.7 : 1 }} onClick={onComplete} disabled={isActing}>
+              {isActing ? 'Confirming…' : (
+                <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Confirm Completion</>
               )}
             </button>
           </div>
         )}
-
-        {/* COMPLETED → Helper info */}
         {favor.status === 'COMPLETED' && (
           <div style={s.completedInfo}>
             <div style={s.claimedByRow}>
@@ -534,23 +511,17 @@ const PostedFavorCard = ({
   );
 };
 
-// ── Claimed Favor Card ────────────────────────────────────────────────────────
 const ClaimedFavorCard = ({ favor, onView }) => {
-  const category = favor.category || 'Other';
+  const category    = favor.category || 'Other';
   const statusColor = STATUS_COLORS[favor.status] || STATUS_COLORS.CLAIMED;
-
   return (
     <div style={{ ...s.favorCard, cursor: 'pointer' }} onClick={onView}>
       <div style={s.favorCardLeft}>
-        <div style={s.favorIconWrap}>
-          {CATEGORY_ICONS[category] || CATEGORY_ICONS.Other}
-        </div>
+        <div style={s.favorIconWrap}>{CATEGORY_ICONS[category] || CATEGORY_ICONS.Other}</div>
         <div style={s.favorCardBody}>
           <div style={s.favorCardTop}>
             <h3 style={s.favorCardTitle}>{favor.title}</h3>
-            <span style={{ ...s.statusBadge, background: statusColor.bg, color: statusColor.text }}>
-              {favor.status}
-            </span>
+            <span style={{ ...s.statusBadge, background: statusColor.bg, color: statusColor.text }}>{favor.status}</span>
           </div>
           <p style={s.favorCardDesc}>{favor.description}</p>
           <div style={s.favorCardMetaRow}>
@@ -573,22 +544,16 @@ const ClaimedFavorCard = ({ favor, onView }) => {
   );
 };
 
-// ── Completed Favor Card ──────────────────────────────────────────────────────
 const CompletedFavorCard = ({ favor, onView }) => {
   const category = favor.category || 'Other';
-
   return (
     <div style={{ ...s.favorCard, cursor: 'pointer' }} onClick={onView}>
       <div style={s.favorCardLeft}>
-        <div style={s.favorIconWrap}>
-          {CATEGORY_ICONS[category] || CATEGORY_ICONS.Other}
-        </div>
+        <div style={s.favorIconWrap}>{CATEGORY_ICONS[category] || CATEGORY_ICONS.Other}</div>
         <div style={s.favorCardBody}>
           <div style={s.favorCardTop}>
             <h3 style={s.favorCardTitle}>{favor.title}</h3>
-            <span style={{ ...s.statusBadge, background: STATUS_COLORS.COMPLETED.bg, color: STATUS_COLORS.COMPLETED.text }}>
-              COMPLETED
-            </span>
+            <span style={{ ...s.statusBadge, background: STATUS_COLORS.COMPLETED.bg, color: STATUS_COLORS.COMPLETED.text }}>COMPLETED</span>
           </div>
           <p style={s.favorCardDesc}>{favor.description}</p>
           <div style={s.favorCardMetaRow}>
@@ -607,38 +572,27 @@ const CompletedFavorCard = ({ favor, onView }) => {
   );
 };
 
-// ══════════════════════════════════════════════════════════════════════════════
-// STYLES
-// ══════════════════════════════════════════════════════════════════════════════
+// ── Styles ────────────────────────────────────────────────────────────────────
 const s = {
   page: { minHeight: '100vh', background: '#FAF7F2', fontFamily: "'Segoe UI', sans-serif" },
   content: { display: 'flex', gap: '24px', maxWidth: '1200px', margin: '0 auto', padding: '40px 32px', alignItems: 'flex-start' },
   mainCol: { flex: 1, minWidth: 0 },
   sidebar: { width: '300px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '16px' },
-
   pageTitle: { fontSize: '28px', fontWeight: '700', color: '#1a1a1a', margin: '0 0 6px 0' },
   pageSubtitle: { fontSize: '14px', color: '#888', margin: '0 0 28px 0' },
-
-  // Stats row
   statsRow: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '28px' },
   statCard: { background: 'white', borderRadius: '16px', padding: '20px 16px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '8px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' },
   statIcon: { width: '36px', height: '36px', borderRadius: '10px', background: '#FFF3E0', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   statValue: { fontSize: '28px', fontWeight: '700', color: '#1a1a1a', lineHeight: '1' },
   statLabel: { fontSize: '12px', color: '#888', fontWeight: '500' },
-
-  // Tabs
-  tabRow: { display: 'flex', gap: '0', marginBottom: '24px', borderBottom: '2px solid #f0ece6' },
+  tabRow: { display: 'flex', marginBottom: '24px', borderBottom: '2px solid #f0ece6' },
   tab: { padding: '12px 20px', background: 'none', border: 'none', fontSize: '14px', color: '#888', cursor: 'pointer', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '2px solid transparent', marginBottom: '-2px' },
   tabActive: { padding: '12px 20px', background: 'none', border: 'none', fontSize: '14px', color: '#C8601A', cursor: 'pointer', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '2px solid #C8601A', marginBottom: '-2px' },
   tabBadge: { background: '#f0ece6', color: '#888', fontSize: '11px', fontWeight: '700', padding: '2px 7px', borderRadius: '20px' },
   tabBadgeActive: { background: '#FFF3E0', color: '#C8601A', fontSize: '11px', fontWeight: '700', padding: '2px 7px', borderRadius: '20px' },
-
-  // Tab content header
   tabContentHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' },
   tabContentTitle: { fontSize: '16px', fontWeight: '700', color: '#1a1a1a', margin: 0 },
   postNewLink: { fontSize: '13px', color: '#C8601A', cursor: 'pointer', fontWeight: '500' },
-
-  // Favor cards
   favorCard: { background: 'white', borderRadius: '16px', padding: '18px', marginBottom: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.04)', border: '1.5px solid #f0ece6', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' },
   favorCardLeft: { display: 'flex', gap: '14px', flex: 1, minWidth: 0 },
   favorIconWrap: { width: '44px', height: '44px', borderRadius: '12px', background: '#FFF3E0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
@@ -648,56 +602,40 @@ const s = {
   favorCardDesc: { fontSize: '13px', color: '#666', margin: '4px 0 8px 0', lineHeight: '1.5' },
   favorCardMeta: { fontSize: '12px', color: '#aaa' },
   favorCardMetaRow: { display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' },
-
   statusBadge: { fontSize: '11px', fontWeight: '700', padding: '3px 9px', borderRadius: '20px', flexShrink: 0, whiteSpace: 'nowrap' },
-
-  // Actions (right side of card)
   favorCardActions: { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', flexShrink: 0, minWidth: '160px' },
   actionBtnRow: { display: 'flex', gap: '8px', alignItems: 'center' },
-
   editBtn: { display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 14px', borderRadius: '8px', border: '1.5px solid #e8e8e8', background: 'white', color: '#555', fontSize: '13px', fontWeight: '500', cursor: 'pointer' },
   deleteBtn: { display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 14px', borderRadius: '8px', border: '1.5px solid #ffcdd2', background: 'white', color: '#e53935', fontSize: '13px', fontWeight: '500', cursor: 'pointer' },
   cancelBtn: { padding: '7px 14px', borderRadius: '8px', border: '1.5px solid #e8e8e8', background: 'white', color: '#555', fontSize: '13px', fontWeight: '500', cursor: 'pointer' },
-
   deleteConfirmBox: { display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' },
   deleteConfirmText: { fontSize: '13px', color: '#e53935', margin: 0, fontWeight: '500' },
   deleteConfirmBtn: { padding: '7px 14px', borderRadius: '8px', border: 'none', background: '#e53935', color: 'white', fontSize: '13px', fontWeight: '600', cursor: 'pointer' },
-
   claimedActions: { display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' },
   claimedByRow: { display: 'flex', alignItems: 'center', gap: '6px' },
   claimedByText: { fontSize: '12px', color: '#555', fontWeight: '500' },
   miniAvatar: { width: '22px', height: '22px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '9px', fontWeight: '700', flexShrink: 0 },
-
   confirmBtn: { display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '10px', border: 'none', background: '#2E7D32', color: 'white', fontSize: '13px', fontWeight: '600', cursor: 'pointer' },
-
   completedInfo: { display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' },
   completedDate: { fontSize: '11px', color: '#aaa' },
-
   repBadge: { background: '#E8F5E9', color: '#2E7D32', fontSize: '12px', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', flexShrink: 0, alignSelf: 'center' },
-
-  // Loading / empty
   loadingBox: { display: 'flex', justifyContent: 'center', alignItems: 'center' },
   spinner: { width: '24px', height: '24px', border: '3px solid #f0ece6', borderTop: '3px solid #C8601A', borderRadius: '50%', animation: 'spin 0.7s linear infinite' },
   emptyBox: { display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 0', gap: '10px' },
   emptyText: { fontSize: '13px', color: '#aaa', margin: 0, textAlign: 'center' },
-
-  // Sidebar
   sideCard: { background: 'white', borderRadius: '16px', padding: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' },
   sideCardTitle: { fontSize: '15px', fontWeight: '700', color: '#1a1a1a', margin: '0 0 16px 0' },
-
-  summaryList: { display: 'flex', flexDirection: 'column', gap: '0' },
+  summaryList: { display: 'flex', flexDirection: 'column' },
   summaryRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f5f5f5' },
   summaryLabel: { fontSize: '13px', color: '#555' },
   summaryValue: { fontSize: '14px', fontWeight: '600', color: '#1a1a1a' },
-
   completionSection: { marginTop: '16px' },
   completionHeader: { marginBottom: '8px' },
   completionLabel: { fontSize: '13px', fontWeight: '600', color: '#333' },
   progressBar: { height: '8px', background: '#f0ece6', borderRadius: '4px', overflow: 'hidden', marginBottom: '6px' },
   progressFill: { height: '100%', background: '#C8601A', borderRadius: '4px', transition: 'width 0.5s ease' },
   completionText: { fontSize: '12px', color: '#aaa', margin: 0 },
-
-  repHistoryList: { display: 'flex', flexDirection: 'column', gap: '0' },
+  repHistoryList: { display: 'flex', flexDirection: 'column' },
   repHistoryItem: { display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '10px 0', borderBottom: '1px solid #f5f5f5' },
   repHistoryDot: { width: '8px', height: '8px', borderRadius: '50%', background: '#C8601A', marginTop: '4px', flexShrink: 0 },
   repHistoryInfo: { flex: 1, minWidth: 0 },

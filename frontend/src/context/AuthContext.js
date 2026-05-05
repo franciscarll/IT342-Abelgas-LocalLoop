@@ -4,7 +4,6 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    // Load immediately from localStorage on first render
     const savedUser = localStorage.getItem('user');
     return savedUser ? JSON.parse(savedUser) : null;
   });
@@ -14,10 +13,8 @@ export const AuthProvider = ({ children }) => {
   });
 
   const login = (userData, accessToken) => {
-    // Save to localStorage FIRST
     localStorage.setItem('token', accessToken);
     localStorage.setItem('user', JSON.stringify(userData));
-    // Then update state
     setUser(userData);
     setToken(accessToken);
   };
@@ -29,8 +26,17 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
   };
 
+  // ── NEW: update user fields in state + localStorage without re-login ────────
+  // Called after profile save or photo upload so Navbar and all pages
+  // immediately reflect the new name / profileImageUrl.
+  const updateUser = (updatedFields) => {
+    const merged = { ...user, ...updatedFields };
+    localStorage.setItem('user', JSON.stringify(merged));
+    setUser(merged);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
