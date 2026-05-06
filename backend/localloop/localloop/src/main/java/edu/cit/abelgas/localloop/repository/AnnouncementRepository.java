@@ -40,6 +40,9 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
             """)
     List<Object[]> countByMonth(@Param("barangay") String barangay);
 
+    // Count all announcements in a barangay
+    @Query("SELECT COUNT(a) FROM Announcement a WHERE a.barangay = :barangay")
+    long countByBarangay(@Param("barangay") String barangay);
     // ── Browse by category: count per category ────────────────────────────────
     @Query("""
             SELECT a.category, COUNT(a)

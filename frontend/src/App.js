@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
@@ -13,7 +14,8 @@ import FavorDetailPage from './pages/FavorDetailPage';
 import MyActivityPage from './pages/MyActivityPage';
 import AnnouncementsPage from './pages/AnnouncementsPage';
 import AdminAnnouncementsPage from './pages/AdminAnnouncementsPage';
-import ProfilePage from './pages/ProfilePage'; // ← NEW
+import ProfilePage from './pages/ProfilePage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
 
 function App() {
   return (
@@ -27,7 +29,7 @@ function App() {
           <Route path="/oauth2/callback" element={<OAuth2CallbackPage />} />
           <Route path="/select-barangay" element={<SelectBarangayPage />} />
 
-          {/* Protected routes */}
+          {/* Resident-protected routes */}
           <Route path="/dashboard" element={
             <ProtectedRoute><DashboardPage /></ProtectedRoute>
           } />
@@ -46,13 +48,16 @@ function App() {
           <Route path="/announcements" element={
             <ProtectedRoute><AnnouncementsPage /></ProtectedRoute>
           } />
-          <Route path="/admin/announcements" element={
-            <ProtectedRoute><AdminAnnouncementsPage /></ProtectedRoute>
-          } />
-
-          {/* ── Profile ── */}
           <Route path="/profile" element={
             <ProtectedRoute><ProfilePage /></ProtectedRoute>
+          } />
+
+          {/* Admin-only routes */}
+          <Route path="/admin/dashboard" element={
+            <AdminRoute><AdminDashboardPage /></AdminRoute>
+          } />
+          <Route path="/admin/announcements" element={
+            <AdminRoute><AdminAnnouncementsPage /></AdminRoute>
           } />
         </Routes>
       </BrowserRouter>

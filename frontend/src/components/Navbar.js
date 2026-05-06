@@ -16,20 +16,30 @@ function initials(name = '') {
   return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 }
 
-// ── Route map ──────────────────────────────────────────────────────────────────
-const NAV_LINKS = [
-  { label: 'Dashboard',    path: '/dashboard' },
-  { label: 'Favor Feed',   path: '/favor-feed' },
-  { label: 'Announcements',path: '/announcements' },
-  { label: 'My Activity',  path: '/my-activity' },
+// ── Route maps ─────────────────────────────────────────────────────────────────
+const RESIDENT_LINKS = [
+  { label: 'Dashboard',     path: '/dashboard' },
+  { label: 'Favor Feed',    path: '/favor-feed' },
+  { label: 'Announcements', path: '/announcements' },
+  { label: 'My Activity',   path: '/my-activity' },
+];
+
+const ADMIN_LINKS = [
+  { label: 'Dashboard',      path: '/admin/dashboard' },
+  { label: 'Announcements',  path: '/admin/announcements' },
+  { label: 'Residents',      path: '/admin/residents' },
+  { label: 'Favor Overview', path: '/admin/favors' },
 ];
 
 const Navbar = () => {
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const navigate  = useNavigate();
+  const location  = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+
+  const isAdmin = user?.role === 'ROLE_ADMIN';
+  const NAV_LINKS = isAdmin ? ADMIN_LINKS : RESIDENT_LINKS;
 
   useEffect(() => {
     const handler = (e) => {
@@ -48,10 +58,12 @@ const Navbar = () => {
 
   const isActive = (path) => location.pathname === path;
 
+  const homePath = isAdmin ? '/admin/dashboard' : '/dashboard';
+
   return (
     <nav style={s.navbar}>
       {/* Logo */}
-      <div style={s.navLogo} onClick={() => navigate('/dashboard')} role="button">
+      <div style={s.navLogo} onClick={() => navigate(homePath)} role="button">
         <svg width="28" height="22" viewBox="0 0 72 56" fill="none">
           <path d="M24 4C16.268 4 10 10.268 10 18C10 26.5 20 38 24 42C28 38 38 26.5 38 18C38 10.268 31.732 4 24 4Z" fill="#C8601A"/>
           <circle cx="24" cy="18" r="5" fill="white"/>
@@ -59,6 +71,10 @@ const Navbar = () => {
           <path d="M48 16.5C48 16.5 45 14 43.5 16C42 18 44 20 48 23C52 20 54 18 52.5 16C51 14 48 16.5 48 16.5Z" fill="white"/>
         </svg>
         <span style={s.navLogoText}>LocalLoop</span>
+        {/* Admin badge */}
+        {isAdmin && (
+          <span style={s.adminBadge}>ADMIN</span>
+        )}
       </div>
 
       {/* Nav Links */}
@@ -104,16 +120,24 @@ const Navbar = () => {
               <div>
                 <div style={s.dropdownName}>{user?.name}</div>
                 <div style={s.dropdownEmail}>{user?.email}</div>
+                {isAdmin && <div style={s.dropdownRole}>Administrator</div>}
               </div>
             </div>
             <div style={s.dropdownDivider} />
-            <div style={s.dropdownItem} onClick={() => { setDropdownOpen(false); navigate('/profile'); }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
-              </svg>
-              My Profile
-            </div>
-            <div style={s.dropdownDivider} />
+
+            {/* Profile link only for residents */}
+            {!isAdmin && (
+              <>
+                <div style={s.dropdownItem} onClick={() => { setDropdownOpen(false); navigate('/profile'); }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                  </svg>
+                  My Profile
+                </div>
+                <div style={s.dropdownDivider} />
+              </>
+            )}
+
             <div style={{ ...s.dropdownItem, color: '#e53935' }} onClick={handleLogout}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
@@ -154,6 +178,16 @@ const s = {
     fontWeight: '700',
     color: '#1a1a1a',
     fontFamily: "'Georgia', serif",
+  },
+  adminBadge: {
+    fontSize: '10px',
+    fontWeight: '700',
+    color: '#C8601A',
+    background: '#FFF3E0',
+    border: '1px solid #FFD0A0',
+    borderRadius: '6px',
+    padding: '2px 7px',
+    letterSpacing: '0.5px',
   },
   navLinks: {
     display: 'flex',
@@ -241,8 +275,9 @@ const s = {
     fontWeight: '700',
     flexShrink: 0,
   },
-  dropdownName: { fontSize: '14px', fontWeight: '600', color: '#1a1a1a' },
+  dropdownName:  { fontSize: '14px', fontWeight: '600', color: '#1a1a1a' },
   dropdownEmail: { fontSize: '12px', color: '#888', marginTop: '1px' },
+  dropdownRole:  { fontSize: '11px', color: '#C8601A', fontWeight: '600', marginTop: '2px' },
   dropdownDivider: { height: '1px', background: '#f5f5f5', margin: '4px 0' },
   dropdownItem: {
     display: 'flex',
