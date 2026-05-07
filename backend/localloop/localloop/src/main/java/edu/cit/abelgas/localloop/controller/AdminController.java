@@ -2,6 +2,7 @@ package edu.cit.abelgas.localloop.controller;
 
 import edu.cit.abelgas.localloop.dto.response.AdminStatsResponse;
 import edu.cit.abelgas.localloop.dto.response.ApiResponse;
+import edu.cit.abelgas.localloop.dto.response.FavorResponse;
 import edu.cit.abelgas.localloop.dto.response.RecentFavorResponse;
 import edu.cit.abelgas.localloop.dto.response.ResidentResponse;
 import edu.cit.abelgas.localloop.entity.User;
@@ -44,12 +45,37 @@ public class AdminController {
                 adminService.getRecentFavors(user.getBarangay())));
     }
 
-    // ── Residents ────────────────────────────────────────────────────────────
+    // ── Favor Overview ────────────────────────────────────────────────────────
 
     /**
-     * GET /api/admin/residents?page=0&size=10&search=&searchBy=both
-     * Returns ALL users in barangay (active + inactive, including admins).
+     * GET /api/admin/favors
+     *   ?page=0&size=10
+     *   &search=       (title or requester name)
+     *   &status=       (OPEN | CLAIMED | COMPLETED)
+     *   &category=     (Errand | Pet Care | Tool Borrowing | Plant Watering | Other)
+     *   &sort=         (newest [default] | oldest)
+     *
+     * Returns ALL favors in the admin's barangay across all statuses.
+     * Note: /favors/recent must be declared BEFORE /favors to avoid
+     * Spring mapping "recent" as a {id} path variable.
      */
+    @GetMapping("/favors")
+    public ResponseEntity<ApiResponse<Page<FavorResponse>>> getAdminFavors(
+            @AuthenticationPrincipal User user,
+            @RequestParam(defaultValue = "0")      int    page,
+            @RequestParam(defaultValue = "10")     int    size,
+            @RequestParam(required = false)        String search,
+            @RequestParam(required = false)        String status,
+            @RequestParam(required = false)        String category,
+            @RequestParam(defaultValue = "newest") String sort) {
+        requireAdmin(user);
+        Page<FavorResponse> data = adminService.getAdminFavors(
+                user.getBarangay(), search, status, category, sort, page, size);
+        return ResponseEntity.ok(ApiResponse.success(data));
+    }
+
+    // ── Residents ─────────────────────────────────────────────────────────────
+
     @GetMapping("/residents")
     public ResponseEntity<ApiResponse<Page<ResidentResponse>>> getResidents(
             @AuthenticationPrincipal User user,
@@ -62,10 +88,6 @@ public class AdminController {
                 adminService.getResidents(user.getBarangay(), search, searchBy, page, size)));
     }
 
-    /**
-     * GET /api/admin/residents/stats
-     * Stat cards for the Residents page.
-     */
     @GetMapping("/residents/stats")
     public ResponseEntity<ApiResponse<Map<String, Long>>> getResidentStats(
             @AuthenticationPrincipal User user) {
@@ -81,10 +103,6 @@ public class AdminController {
         )));
     }
 
-    /**
-     * PATCH /api/admin/residents/{id}/deactivate
-     * Soft-deactivates a resident. Admin cannot deactivate themselves.
-     */
     @PatchMapping("/residents/{id}/deactivate")
     public ResponseEntity<ApiResponse<Void>> deactivateResident(
             @PathVariable Long id,
@@ -94,10 +112,6 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
-    /**
-     * PATCH /api/admin/residents/{id}/reactivate
-     * Reactivates a previously deactivated resident.
-     */
     @PatchMapping("/residents/{id}/reactivate")
     public ResponseEntity<ApiResponse<Void>> reactivateResident(
             @PathVariable Long id,

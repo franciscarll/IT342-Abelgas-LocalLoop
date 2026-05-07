@@ -17,6 +17,7 @@ import AdminAnnouncementsPage from './pages/AdminAnnouncementsPage';
 import ProfilePage from './pages/ProfilePage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminResidentsPage from './pages/AdminResidentsPage';
+import AdminFavorOverviewPage from './pages/AdminFavorOverviewPage';
 
 function App() {
   return (
@@ -62,6 +63,9 @@ function App() {
           } />
           <Route path="/admin/residents" element={
             <AdminRoute><AdminResidentsPage /></AdminRoute>
+          } />
+          <Route path="/admin/favors" element={
+            <AdminRoute><AdminFavorOverviewPage /></AdminRoute>
           } />
         </Routes>
       </BrowserRouter>
