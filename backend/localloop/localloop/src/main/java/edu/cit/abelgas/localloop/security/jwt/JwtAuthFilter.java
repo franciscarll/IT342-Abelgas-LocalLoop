@@ -47,6 +47,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String email = jwtUtil.extractEmail(token);
 
         userRepository.findByEmail(email).ifPresent(user -> {
+            // ── Block deactivated users from authenticating ──────────────────
+            // If the user has been deactivated by an admin, their existing JWT
+            // is invalidated here — all protected endpoints will return 401.
+            if (!user.isActive()) {
+                return; // do NOT set SecurityContext → request treated as unauthenticated
+            }
+
             var authToken = new UsernamePasswordAuthenticationToken(
                     user,
                     null,

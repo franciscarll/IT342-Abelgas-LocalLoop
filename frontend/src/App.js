@@ -16,6 +16,7 @@ import AnnouncementsPage from './pages/AnnouncementsPage';
 import AdminAnnouncementsPage from './pages/AdminAnnouncementsPage';
 import ProfilePage from './pages/ProfilePage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
+import AdminResidentsPage from './pages/AdminResidentsPage';
 
 function App() {
   return (
@@ -58,6 +59,9 @@ function App() {
           } />
           <Route path="/admin/announcements" element={
             <AdminRoute><AdminAnnouncementsPage /></AdminRoute>
+          } />
+          <Route path="/admin/residents" element={
+            <AdminRoute><AdminResidentsPage /></AdminRoute>
           } />
         </Routes>
       </BrowserRouter>

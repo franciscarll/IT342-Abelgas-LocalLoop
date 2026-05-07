@@ -35,6 +35,9 @@ public class User {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
+    private boolean active = true;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -53,7 +56,9 @@ public class User {
     public Integer getReputationScore() { return reputationScore; }
     public String getProfileImageUrl() { return profileImageUrl; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public boolean isActive() { return active; }
 
+    public void setActive(boolean active) { this.active = active; }
     public void setId(Long id) { this.id = id; }
     public void setName(String name) { this.name = name; }
     public void setEmail(String email) { this.email = email; }
@@ -76,6 +81,7 @@ public class User {
         private Integer reputationScore;
         private String profileImageUrl;
         private LocalDateTime createdAt;
+        private boolean active = true;
 
         public Builder id(Long id) { this.id = id; return this; }
         public Builder name(String name) { this.name = name; return this; }
@@ -86,6 +92,7 @@ public class User {
         public Builder reputationScore(Integer r) { this.reputationScore = r; return this; }
         public Builder profileImageUrl(String url) { this.profileImageUrl = url; return this; }
         public Builder createdAt(LocalDateTime t) { this.createdAt = t; return this; }
+        public Builder active(boolean v) { this.active = v; return this; }
 
         public User build() {
             User u = new User();
@@ -98,6 +105,7 @@ public class User {
             u.reputationScore = this.reputationScore;
             u.profileImageUrl = this.profileImageUrl;
             u.createdAt = this.createdAt;
+            u.active = this.active;
             return u;
         }
     }

@@ -1,6 +1,8 @@
 package edu.cit.abelgas.localloop.repository;
 
 import edu.cit.abelgas.localloop.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,22 +20,35 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // ── Admin stats ──────────────────────────────────────────────────────────
 
-    /**
-     * Count all non-admin users in the given barangay.
-     */
     @Query("SELECT COUNT(u) FROM User u WHERE u.barangay = :barangay AND u.role != 'ROLE_ADMIN'")
     long countResidentsByBarangay(@Param("barangay") String barangay);
 
-    /**
-     * Sum of all reputation scores for users in the given barangay.
-     * Returns 0 if no users exist.
-     */
     @Query("SELECT COALESCE(SUM(u.reputationScore), 0) FROM User u WHERE u.barangay = :barangay")
     long sumReputationByBarangay(@Param("barangay") String barangay);
 
-    /**
-     * Returns all non-admin users in the barangay (for Residents page later).
-     */
+    @Query("SELECT COUNT(u) FROM User u WHERE u.barangay = :barangay")
+    long countAllByBarangay(@Param("barangay") String barangay);
+
+    // ── Residents page — paginated search ───────────────────────────────────
+
+    @Query("SELECT u FROM User u WHERE u.barangay = :barangay ORDER BY u.createdAt DESC")
+    Page<User> findAllByBarangay(@Param("barangay") String barangay, Pageable pageable);
+
+    @Query("SELECT u FROM User u WHERE u.barangay = :barangay AND LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%')) ORDER BY u.createdAt DESC")
+    Page<User> findByBarangayAndName(@Param("barangay") String barangay,
+                                     @Param("search") String search,
+                                     Pageable pageable);
+
+    @Query("SELECT u FROM User u WHERE u.barangay = :barangay AND LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')) ORDER BY u.createdAt DESC")
+    Page<User> findByBarangayAndEmail(@Param("barangay") String barangay,
+                                      @Param("search") String search,
+                                      Pageable pageable);
+
+    @Query("SELECT u FROM User u WHERE u.barangay = :barangay AND (LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%'))) ORDER BY u.createdAt DESC")
+    Page<User> findByBarangayAndNameOrEmail(@Param("barangay") String barangay,
+                                            @Param("search") String search,
+                                            Pageable pageable);
+
     @Query("SELECT u FROM User u WHERE u.barangay = :barangay AND u.role != 'ROLE_ADMIN' ORDER BY u.createdAt DESC")
     List<User> findResidentsByBarangay(@Param("barangay") String barangay);
 }
