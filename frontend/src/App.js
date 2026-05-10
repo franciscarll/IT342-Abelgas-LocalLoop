@@ -1,23 +1,23 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
-import AdminRoute from './components/AdminRoute';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import DashboardPage from './pages/DashboardPage';
-import OAuth2CallbackPage from './pages/OAuth2CallbackPage';
-import SelectBarangayPage from './pages/SelectBarangayPage';
-import FavorFeedPage from './pages/FavorFeedPage';
-import CreateFavorPage from './pages/CreateFavorPage';
-import FavorDetailPage from './pages/FavorDetailPage';
-import MyActivityPage from './pages/MyActivityPage';
-import AnnouncementsPage from './pages/AnnouncementsPage';
-import AdminAnnouncementsPage from './pages/AdminAnnouncementsPage';
-import ProfilePage from './pages/ProfilePage';
-import AdminDashboardPage from './pages/AdminDashboardPage';
-import AdminResidentsPage from './pages/AdminResidentsPage';
-import AdminFavorOverviewPage from './pages/AdminFavorOverviewPage';
+import { AuthProvider } from './shared/context/AuthContext';
+import ProtectedRoute from './shared/components/ProtectedRoute';
+import AdminRoute from './shared/components/AdminRoute';
+import LoginPage from './features/auth/LoginPage';
+import RegisterPage from './features/auth/RegisterPage';
+import OAuth2CallbackPage from './features/auth/OAuth2CallbackPage';
+import SelectBarangayPage from './features/auth/SelectBarangayPage';
+import DashboardPage from './features/dashboard/DashboardPage';
+import FavorFeedPage from './features/favors/FavorFeedPage';
+import CreateFavorPage from './features/favors/CreateFavorPage';
+import FavorDetailPage from './features/favors/FavorDetailPage';
+import MyActivityPage from './features/profile/MyActivityPage';
+import AnnouncementsPage from './features/announcements/AnnouncementsPage';
+import ProfilePage from './features/profile/ProfilePage';
+import AdminDashboardPage from './features/admin/AdminDashboardPage';
+import AdminAnnouncementsPage from './features/admin/AdminAnnouncementsPage';
+import AdminResidentsPage from './features/admin/AdminResidentsPage';
+import AdminFavorOverviewPage from './features/admin/AdminFavorOverviewPage';
 
 function App() {
   return (
