@@ -1,4 +1,4 @@
-package edu.cit.abelgas.localloop.entity;
+package edu.cit.abelgas.localloop.features.profile;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

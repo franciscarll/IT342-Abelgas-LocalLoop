@@ -1,4 +1,4 @@
-package edu.cit.abelgas.localloop.dto.request;
+package edu.cit.abelgas.localloop.features.auth;
 
 import jakarta.validation.constraints.*;
 

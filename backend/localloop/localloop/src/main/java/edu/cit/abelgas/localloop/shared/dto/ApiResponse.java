@@ -1,4 +1,4 @@
-package edu.cit.abelgas.localloop.dto.response;
+package edu.cit.abelgas.localloop.shared.dto;
 
 import java.time.Instant;
 

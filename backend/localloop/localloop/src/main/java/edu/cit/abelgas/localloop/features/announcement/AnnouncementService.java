@@ -1,10 +1,6 @@
-package edu.cit.abelgas.localloop.service;
+package edu.cit.abelgas.localloop.features.announcement;
 
-import edu.cit.abelgas.localloop.dto.request.AnnouncementRequest;
-import edu.cit.abelgas.localloop.dto.response.AnnouncementResponse;
-import edu.cit.abelgas.localloop.entity.Announcement;
 import edu.cit.abelgas.localloop.features.auth.User;
-import edu.cit.abelgas.localloop.repository.AnnouncementRepository;
 import edu.cit.abelgas.localloop.features.auth.UserRepository;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;

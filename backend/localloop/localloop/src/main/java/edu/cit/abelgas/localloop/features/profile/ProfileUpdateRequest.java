@@ -1,4 +1,4 @@
-package edu.cit.abelgas.localloop.dto.request;
+package edu.cit.abelgas.localloop.features.profile;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

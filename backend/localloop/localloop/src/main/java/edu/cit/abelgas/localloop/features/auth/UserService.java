@@ -1,12 +1,10 @@
-package edu.cit.abelgas.localloop.service;
+package edu.cit.abelgas.localloop.features.auth;
 
 import edu.cit.abelgas.localloop.features.profile.ReputationHistoryResponse;
 import edu.cit.abelgas.localloop.features.profile.ReputationResponse;
 import edu.cit.abelgas.localloop.shared.dto.UserResponse;
-import edu.cit.abelgas.localloop.features.auth.User;
 import edu.cit.abelgas.localloop.features.favor.FavorRepository;
 import edu.cit.abelgas.localloop.features.profile.ReputationHistoryRepository;
-import edu.cit.abelgas.localloop.features.auth.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

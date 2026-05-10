@@ -1,4 +1,4 @@
-package edu.cit.abelgas.localloop.security.jwt;
+package edu.cit.abelgas.localloop.shared.security.jwt;
 
 import edu.cit.abelgas.localloop.features.auth.UserRepository;
 import jakarta.servlet.*;

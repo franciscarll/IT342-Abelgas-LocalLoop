@@ -1,4 +1,4 @@
-package edu.cit.abelgas.localloop.exception;
+package edu.cit.abelgas.localloop.shared.exception;
 
 public class BadRequestException extends RuntimeException {
     public BadRequestException(String message) {

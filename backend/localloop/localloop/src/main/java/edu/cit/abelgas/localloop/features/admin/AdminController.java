@@ -1,12 +1,9 @@
-package edu.cit.abelgas.localloop.controller;
+package edu.cit.abelgas.localloop.features.admin;
 
-import edu.cit.abelgas.localloop.dto.response.AdminStatsResponse;
-import edu.cit.abelgas.localloop.dto.response.ApiResponse;
+import edu.cit.abelgas.localloop.shared.dto.ApiResponse;
 import edu.cit.abelgas.localloop.features.favor.FavorResponse;
 import edu.cit.abelgas.localloop.features.favor.RecentFavorResponse;
-import edu.cit.abelgas.localloop.dto.response.ResidentResponse;
 import edu.cit.abelgas.localloop.features.auth.User;
-import edu.cit.abelgas.localloop.service.AdminService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

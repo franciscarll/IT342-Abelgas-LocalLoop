@@ -1,4 +1,4 @@
-package edu.cit.abelgas.localloop.security;
+package edu.cit.abelgas.localloop.shared.security;
 
 import edu.cit.abelgas.localloop.features.auth.User;
 import edu.cit.abelgas.localloop.features.auth.UserRepository;

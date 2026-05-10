@@ -1,9 +1,7 @@
-package edu.cit.abelgas.localloop.controller;
+package edu.cit.abelgas.localloop.features.weather;
 
-import edu.cit.abelgas.localloop.dto.response.ApiResponse;
-import edu.cit.abelgas.localloop.dto.response.WeatherResponse;
+import edu.cit.abelgas.localloop.shared.dto.ApiResponse;
 import edu.cit.abelgas.localloop.features.auth.User;
-import edu.cit.abelgas.localloop.service.WeatherService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;

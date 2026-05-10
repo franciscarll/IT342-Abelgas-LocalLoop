@@ -1,4 +1,6 @@
-package edu.cit.abelgas.localloop.dto.response;
+package edu.cit.abelgas.localloop.features.auth;
+
+import edu.cit.abelgas.localloop.shared.dto.UserResponse;
 
 public class AuthResponse {
     private UserResponse user;

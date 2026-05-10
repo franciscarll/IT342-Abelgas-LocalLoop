@@ -1,4 +1,4 @@
-package edu.cit.abelgas.localloop.dto.response;
+package edu.cit.abelgas.localloop.features.favor;
 
 import java.time.LocalDateTime;
 

@@ -1,10 +1,9 @@
-package edu.cit.abelgas.localloop.dto.request;
+package edu.cit.abelgas.localloop.features.favor;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 public class FavorRequest {

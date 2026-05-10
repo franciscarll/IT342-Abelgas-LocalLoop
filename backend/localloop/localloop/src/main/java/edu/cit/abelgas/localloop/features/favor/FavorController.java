@@ -1,10 +1,7 @@
-package edu.cit.abelgas.localloop.controller;
+package edu.cit.abelgas.localloop.features.favor;
 
-import edu.cit.abelgas.localloop.dto.request.FavorRequest;
-import edu.cit.abelgas.localloop.dto.response.ApiResponse;
-import edu.cit.abelgas.localloop.dto.response.FavorResponse;
+import edu.cit.abelgas.localloop.shared.dto.ApiResponse;
 import edu.cit.abelgas.localloop.features.auth.User;
-import edu.cit.abelgas.localloop.service.FavorService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.*;

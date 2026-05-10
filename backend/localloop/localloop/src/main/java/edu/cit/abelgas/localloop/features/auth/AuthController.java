@@ -1,9 +1,7 @@
-package edu.cit.abelgas.localloop.controller;
+package edu.cit.abelgas.localloop.features.auth;
 
-import edu.cit.abelgas.localloop.dto.request.*;
-import edu.cit.abelgas.localloop.dto.response.*;
-import edu.cit.abelgas.localloop.entity.User;
-import edu.cit.abelgas.localloop.service.AuthService;
+import edu.cit.abelgas.localloop.shared.dto.ApiResponse;
+import edu.cit.abelgas.localloop.shared.dto.UserResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

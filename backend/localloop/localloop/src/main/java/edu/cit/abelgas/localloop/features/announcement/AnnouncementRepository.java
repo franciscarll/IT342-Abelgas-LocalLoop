@@ -1,6 +1,5 @@
-package edu.cit.abelgas.localloop.repository;
+package edu.cit.abelgas.localloop.features.announcement;
 
-import edu.cit.abelgas.localloop.entity.Announcement;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

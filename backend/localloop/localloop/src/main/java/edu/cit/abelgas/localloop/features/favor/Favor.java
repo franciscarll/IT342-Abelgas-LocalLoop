@@ -1,4 +1,4 @@
-package edu.cit.abelgas.localloop.entity;
+package edu.cit.abelgas.localloop.features.favor;
 
 import jakarta.persistence.*;
 import lombok.*;

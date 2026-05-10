@@ -1,11 +1,9 @@
-package edu.cit.abelgas.localloop.service;
+package edu.cit.abelgas.localloop.features.auth;
 
-import edu.cit.abelgas.localloop.dto.request.*;
-import edu.cit.abelgas.localloop.dto.response.*;
-import edu.cit.abelgas.localloop.entity.User;
-import edu.cit.abelgas.localloop.exception.*;
-import edu.cit.abelgas.localloop.repository.UserRepository;
-import edu.cit.abelgas.localloop.security.jwt.JwtUtil;
+import edu.cit.abelgas.localloop.shared.dto.UserResponse;
+import edu.cit.abelgas.localloop.shared.security.jwt.JwtUtil;
+import edu.cit.abelgas.localloop.shared.exception.DuplicateEmailException;
+import edu.cit.abelgas.localloop.shared.exception.InvalidCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

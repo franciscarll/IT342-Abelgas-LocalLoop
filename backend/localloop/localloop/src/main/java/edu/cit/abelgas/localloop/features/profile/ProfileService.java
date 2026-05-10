@@ -1,10 +1,8 @@
-package edu.cit.abelgas.localloop.service;
+package edu.cit.abelgas.localloop.features.profile;
 
-import edu.cit.abelgas.localloop.features.profile.ProfileUpdateRequest;
-import edu.cit.abelgas.localloop.features.profile.ProfileResponse;
-import edu.cit.abelgas.localloop.dto.response.UserResponse;
+import edu.cit.abelgas.localloop.shared.dto.UserResponse;
 import edu.cit.abelgas.localloop.features.auth.User;
-import edu.cit.abelgas.localloop.exception.BadRequestException;
+import edu.cit.abelgas.localloop.shared.exception.BadRequestException;
 import edu.cit.abelgas.localloop.features.favor.FavorRepository;
 import edu.cit.abelgas.localloop.features.auth.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;

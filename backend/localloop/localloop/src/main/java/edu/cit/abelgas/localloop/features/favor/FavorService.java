@@ -1,10 +1,6 @@
-package edu.cit.abelgas.localloop.service;
+package edu.cit.abelgas.localloop.features.favor;
 
-import edu.cit.abelgas.localloop.dto.request.FavorRequest;
-import edu.cit.abelgas.localloop.dto.response.FavorResponse;
-import edu.cit.abelgas.localloop.entity.Favor;
 import edu.cit.abelgas.localloop.features.auth.User;
-import edu.cit.abelgas.localloop.repository.FavorRepository;
 import edu.cit.abelgas.localloop.features.auth.UserRepository;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;

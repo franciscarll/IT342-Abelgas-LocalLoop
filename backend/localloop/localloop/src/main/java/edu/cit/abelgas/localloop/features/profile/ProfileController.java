@@ -1,11 +1,8 @@
-package edu.cit.abelgas.localloop.controller;
+package edu.cit.abelgas.localloop.features.profile;
 
-import edu.cit.abelgas.localloop.dto.request.ProfileUpdateRequest;
-import edu.cit.abelgas.localloop.dto.response.ApiResponse;
-import edu.cit.abelgas.localloop.dto.response.ProfileResponse;
-import edu.cit.abelgas.localloop.dto.response.UserResponse;
+import edu.cit.abelgas.localloop.shared.dto.ApiResponse;
+import edu.cit.abelgas.localloop.shared.dto.UserResponse;
 import edu.cit.abelgas.localloop.features.auth.User;
-import edu.cit.abelgas.localloop.service.ProfileService;
 import jakarta.validation.Valid;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

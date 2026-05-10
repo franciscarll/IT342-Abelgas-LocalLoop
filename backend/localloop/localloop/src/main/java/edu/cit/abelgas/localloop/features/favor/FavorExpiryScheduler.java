@@ -1,7 +1,5 @@
-package edu.cit.abelgas.localloop.scheduler;
+package edu.cit.abelgas.localloop.features.favor;
 
-import edu.cit.abelgas.localloop.entity.Favor;
-import edu.cit.abelgas.localloop.repository.FavorRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;

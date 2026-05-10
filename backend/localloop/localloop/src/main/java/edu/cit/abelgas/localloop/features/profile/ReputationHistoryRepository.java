@@ -1,6 +1,5 @@
-package edu.cit.abelgas.localloop.repository;
+package edu.cit.abelgas.localloop.features.profile;
 
-import edu.cit.abelgas.localloop.entity.ReputationHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

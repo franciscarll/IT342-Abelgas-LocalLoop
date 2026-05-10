@@ -1,8 +1,6 @@
-package edu.cit.abelgas.localloop.service;
+package edu.cit.abelgas.localloop.features.admin;
 
-import edu.cit.abelgas.localloop.dto.response.AdminStatsResponse;
 import edu.cit.abelgas.localloop.features.favor.RecentFavorResponse;
-import edu.cit.abelgas.localloop.dto.response.ResidentResponse;
 import edu.cit.abelgas.localloop.features.favor.FavorResponse;
 import edu.cit.abelgas.localloop.features.favor.Favor;
 import edu.cit.abelgas.localloop.features.auth.User;

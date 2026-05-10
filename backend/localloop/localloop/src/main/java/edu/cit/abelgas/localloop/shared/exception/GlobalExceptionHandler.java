@@ -1,6 +1,6 @@
-package edu.cit.abelgas.localloop.exception;
+package edu.cit.abelgas.localloop.shared.exception;
 
-import edu.cit.abelgas.localloop.dto.response.ApiResponse;
+import edu.cit.abelgas.localloop.shared.dto.ApiResponse;
 import org.springframework.http.*;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;

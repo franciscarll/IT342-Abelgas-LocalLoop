@@ -1,6 +1,5 @@
-package edu.cit.abelgas.localloop.service;
+package edu.cit.abelgas.localloop.features.weather;
 
-import edu.cit.abelgas.localloop.dto.response.WeatherResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
