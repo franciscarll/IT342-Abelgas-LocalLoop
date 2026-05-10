@@ -13,7 +13,7 @@
         android:usesCleartextTraffic="true">
 
         <activity
-            android:name=".ui.LoginActivity"
+            android:name=".features.auth.LoginActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -23,12 +23,12 @@
         </activity>
 
         <activity
-            android:name=".ui.RegisterActivity"
+            android:name=".features.auth.RegisterActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name=".ui.DashboardActivity"
+            android:name=".features.dashboard.DashboardActivity"
             android:exported="false" />
 
     </application>

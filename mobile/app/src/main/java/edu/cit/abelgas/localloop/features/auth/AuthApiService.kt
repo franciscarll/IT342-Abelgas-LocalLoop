@@ -1,17 +1,17 @@
-package edu.cit.abelgas.localloop.api
+package edu.cit.abelgas.localloop.features.auth
 
-import edu.cit.abelgas.localloop.model.ApiResponse
-import edu.cit.abelgas.localloop.model.AuthData
-import edu.cit.abelgas.localloop.model.LoginRequest
-import edu.cit.abelgas.localloop.model.RegisterRequest
-import edu.cit.abelgas.localloop.model.UserDto
+import edu.cit.abelgas.localloop.features.auth.model.LoginRequest
+import edu.cit.abelgas.localloop.features.auth.model.RegisterRequest
+import edu.cit.abelgas.localloop.features.auth.model.AuthData
+import edu.cit.abelgas.localloop.shared.model.ApiResponse
+import edu.cit.abelgas.localloop.features.profile.model.UserDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 
-interface ApiService {
+interface AuthApiService {
 
     @POST("auth/register")
     suspend fun register(

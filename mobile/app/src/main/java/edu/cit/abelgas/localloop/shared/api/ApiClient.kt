@@ -1,5 +1,6 @@
-package edu.cit.abelgas.localloop.api
+package edu.cit.abelgas.localloop.shared.api
 
+import edu.cit.abelgas.localloop.features.auth.AuthApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -29,7 +30,7 @@ object ApiClient {
                 .build()
     }
 
-    val service: ApiService by lazy {
-        retrofit.create(ApiService::class.java)
+    val service: AuthApiService by lazy {
+        retrofit.create(AuthApiService::class.java)
     }
 }

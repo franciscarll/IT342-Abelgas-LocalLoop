@@ -1,8 +1,8 @@
-package edu.cit.abelgas.localloop.util
+package edu.cit.abelgas.localloop.shared.util
 
 import android.content.Context
 import android.content.SharedPreferences
-import edu.cit.abelgas.localloop.model.UserDto
+import edu.cit.abelgas.localloop.features.profile.model.UserDto
 
 class SharedPreferencesHelper(context: Context) {
 

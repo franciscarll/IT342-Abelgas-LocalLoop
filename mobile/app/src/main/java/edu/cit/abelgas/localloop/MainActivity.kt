@@ -3,8 +3,9 @@ package edu.cit.abelgas.localloop
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import edu.cit.abelgas.localloop.ui.LoginActivity
-import edu.cit.abelgas.localloop.util.SharedPreferencesHelper
+import edu.cit.abelgas.localloop.features.auth.LoginActivity
+import edu.cit.abelgas.localloop.features.dashboard.DashboardActivity
+import edu.cit.abelgas.localloop.shared.util.SharedPreferencesHelper
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,7 +18,7 @@ class MainActivity : AppCompatActivity() {
         val prefs = SharedPreferencesHelper(this)
 
         if (prefs.isLoggedIn()) {
-            startActivity(Intent(this, edu.cit.abelgas.localloop.ui.DashboardActivity::class.java))
+            startActivity(Intent(this, DashboardActivity::class.java))
         } else {
             startActivity(Intent(this, LoginActivity::class.java))
         }

@@ -1,4 +1,4 @@
-package edu.cit.abelgas.localloop.ui
+package edu.cit.abelgas.localloop.features.auth
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,10 +7,11 @@ import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import edu.cit.abelgas.localloop.R
-import edu.cit.abelgas.localloop.api.ApiClient
+import edu.cit.abelgas.localloop.shared.api.ApiClient
 import edu.cit.abelgas.localloop.databinding.ActivityRegisterBinding
-import edu.cit.abelgas.localloop.model.RegisterRequest
-import edu.cit.abelgas.localloop.util.SharedPreferencesHelper
+import edu.cit.abelgas.localloop.features.auth.model.RegisterRequest
+import edu.cit.abelgas.localloop.features.dashboard.DashboardActivity
+import edu.cit.abelgas.localloop.shared.util.SharedPreferencesHelper
 import kotlinx.coroutines.launch
 import java.io.IOException
 

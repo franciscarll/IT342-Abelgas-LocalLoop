@@ -1,14 +1,15 @@
-package edu.cit.abelgas.localloop.ui
+package edu.cit.abelgas.localloop.features.dashboard
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import edu.cit.abelgas.localloop.api.ApiClient
+import edu.cit.abelgas.localloop.shared.api.ApiClient
 import edu.cit.abelgas.localloop.R
 import edu.cit.abelgas.localloop.databinding.ActivityDashboardBinding
-import edu.cit.abelgas.localloop.util.SharedPreferencesHelper
+import edu.cit.abelgas.localloop.features.auth.LoginActivity
+import edu.cit.abelgas.localloop.shared.util.SharedPreferencesHelper
 import kotlinx.coroutines.launch
 import java.io.IOException
 
