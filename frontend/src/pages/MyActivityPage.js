@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import Navbar from '../components/Navbar';
 
-// ── Utilities ─────────────────────────────────────────────────────────────────
 const AVATAR_COLORS = [
   '#C8601A', '#2E86AB', '#A23B72', '#F18F01',
   '#44BBA4', '#E94F37', '#6B4226', '#3A86FF',
@@ -63,6 +62,7 @@ const STATUS_COLORS = {
   OPEN:      { bg: '#FFF3E0', text: '#E65100' },
   CLAIMED:   { bg: '#FFF8E1', text: '#F57F17' },
   COMPLETED: { bg: '#E8F5E9', text: '#2E7D32' },
+  EXPIRED:   { bg: '#F5F5F5', text: '#757575' },
 };
 
 if (typeof document !== 'undefined' && !document.getElementById('ll-spin-style')) {
@@ -77,43 +77,31 @@ const MyActivityPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // FIX: Store user in a ref so useCallback deps stay stable.
-  // Previously fetchReputation had [user] as a dep, causing re-runs whenever
-  // anything touched the user object in AuthContext.
   const userRef = useRef(user);
   useEffect(() => { userRef.current = user; }, [user]);
 
-  const [activeTab, setActiveTab] = useState('posted');
-
-  const [postedFavors,    setPostedFavors]    = useState([]);
-  const [claimedFavors,   setClaimedFavors]   = useState([]);
+  const [activeTab, setActiveTab]             = useState('posted');
+  const [postedFavors, setPostedFavors]       = useState([]);
+  const [claimedFavors, setClaimedFavors]     = useState([]);
   const [completedFavors, setCompletedFavors] = useState([]);
-  const [reputation,      setReputation]      = useState(null);
+  const [reputation, setReputation]           = useState(null);
 
-  const [loadingPosted,     setLoadingPosted]     = useState(true);
-  const [loadingClaimed,    setLoadingClaimed]     = useState(true);
-  const [loadingReputation, setLoadingReputation]  = useState(true);
+  const [loadingPosted, setLoadingPosted]         = useState(true);
+  const [loadingClaimed, setLoadingClaimed]       = useState(true);
+  const [loadingReputation, setLoadingReputation] = useState(true);
 
   const [actionLoading, setActionLoading] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
-
-  // FIX: All three fetch functions have empty [] deps.
-  // They are created once, never recreated, so the useEffect that calls them
-  // also only fires once — eliminating the query loop entirely.
 
   const fetchPosted = useCallback(async () => {
     setLoadingPosted(true);
     try {
       const res = await api.get('/favors/my-posted', { params: { page: 0, size: 50 } });
       const data = res.data?.data;
-      const list = data?.content || data || [];
-      setPostedFavors(list);
-    } catch {
-      // silently fail
-    } finally {
-      setLoadingPosted(false);
-    }
-  }, []); // ← empty deps: created once
+      setPostedFavors(data?.content || data || []);
+    } catch { /* silently fail */ }
+    finally { setLoadingPosted(false); }
+  }, []);
 
   const fetchClaimed = useCallback(async () => {
     setLoadingClaimed(true);
@@ -123,12 +111,9 @@ const MyActivityPage = () => {
       const list = data?.content || data || [];
       setClaimedFavors(list.filter(f => f.status === 'CLAIMED'));
       setCompletedFavors(list.filter(f => f.status === 'COMPLETED'));
-    } catch {
-      // silently fail
-    } finally {
-      setLoadingClaimed(false);
-    }
-  }, []); // ← empty deps: created once
+    } catch { /* silently fail */ }
+    finally { setLoadingClaimed(false); }
+  }, []);
 
   const fetchReputation = useCallback(async () => {
     setLoadingReputation(true);
@@ -136,18 +121,16 @@ const MyActivityPage = () => {
       const res = await api.get('/users/me/reputation');
       setReputation(res.data?.data || res.data);
     } catch {
-      // Fall back to cached user data from ref — does not trigger re-renders
       setReputation({
         reputationScore: userRef.current?.reputationScore ?? 0,
-        favorsPosted:    0,
+        favorsPosted: 0,
         favorsCompleted: 0,
+        history: [],
       });
-    } finally {
-      setLoadingReputation(false);
     }
-  }, []); // ← empty deps: created once
+    finally { setLoadingReputation(false); }
+  }, []);
 
-  // Runs once on mount — fetchPosted/fetchClaimed/fetchReputation are stable
   useEffect(() => {
     fetchPosted();
     fetchClaimed();
@@ -164,9 +147,7 @@ const MyActivityPage = () => {
       fetchReputation();
     } catch (err) {
       alert(err.response?.data?.error?.message || 'Could not delete this favor.');
-    } finally {
-      setActionLoading(null);
-    }
+    } finally { setActionLoading(null); }
   };
 
   // ── Confirm completion ────────────────────────────────────────────────────
@@ -180,9 +161,32 @@ const MyActivityPage = () => {
       fetchClaimed();
     } catch (err) {
       alert(err.response?.data?.error?.message || 'Could not confirm completion.');
-    } finally {
-      setActionLoading(null);
-    }
+    } finally { setActionLoading(null); }
+  };
+
+  // ── Cancel Claim ──────────────────────────────────────────────────────────
+  const handleCancelClaim = async (favorId) => {
+    setActionLoading(favorId);
+    try {
+      await api.put(`/favors/${favorId}/cancel-claim`);
+      setClaimedFavors(prev => prev.filter(f => f.id !== favorId));
+      // Refresh reputation — -1 was deducted and a history record was created
+      fetchReputation();
+    } catch (err) {
+      alert(err.response?.data?.error?.message || 'Could not cancel this claim.');
+    } finally { setActionLoading(null); }
+  };
+
+  // ── Re-open Favor ─────────────────────────────────────────────────────────
+  const handleReopen = async (favorId) => {
+    setActionLoading(favorId);
+    try {
+      const res = await api.put(`/favors/${favorId}/reopen`);
+      const updated = res.data?.data || res.data;
+      setPostedFavors(prev => prev.map(f => f.id === favorId ? updated : f));
+    } catch (err) {
+      alert(err.response?.data?.error?.message || 'Could not re-open this favor.');
+    } finally { setActionLoading(null); }
   };
 
   // ── Derived stats ─────────────────────────────────────────────────────────
@@ -195,6 +199,9 @@ const MyActivityPage = () => {
   const completionRate       = postedCount > 0
     ? Math.round((postedCompletedCount / postedCount) * 100) : 0;
 
+  // ── Reputation history from API ───────────────────────────────────────────
+  const repHistory = reputation?.history || [];
+
   const tabs = [
     { key: 'posted',    label: 'Posted Favors',    count: postedCount },
     { key: 'claimed',   label: 'Claimed Favors',   count: claimedCount },
@@ -206,12 +213,10 @@ const MyActivityPage = () => {
       <Navbar />
       <div style={s.content}>
 
-        {/* ── MAIN COLUMN ── */}
         <div style={s.mainCol}>
           <h1 style={s.pageTitle}>My Activity</h1>
           <p style={s.pageSubtitle}>Track all your posted, claimed, and completed favors.</p>
 
-          {/* Stats row */}
           <div style={s.statsRow}>
             <StatCard
               icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C8601A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>}
@@ -235,18 +240,11 @@ const MyActivityPage = () => {
             />
           </div>
 
-          {/* Tabs */}
           <div style={s.tabRow}>
             {tabs.map(tab => (
-              <button
-                key={tab.key}
-                style={activeTab === tab.key ? s.tabActive : s.tab}
-                onClick={() => setActiveTab(tab.key)}
-              >
+              <button key={tab.key} style={activeTab === tab.key ? s.tabActive : s.tab} onClick={() => setActiveTab(tab.key)}>
                 {tab.label}
-                <span style={activeTab === tab.key ? s.tabBadgeActive : s.tabBadge}>
-                  {tab.count}
-                </span>
+                <span style={activeTab === tab.key ? s.tabBadgeActive : s.tabBadge}>{tab.count}</span>
               </button>
             ))}
           </div>
@@ -256,9 +254,7 @@ const MyActivityPage = () => {
             <div>
               <div style={s.tabContentHeader}>
                 <h2 style={s.tabContentTitle}>Your Posted Favors</h2>
-                <span style={s.postNewLink} onClick={() => navigate('/favors/new')}>
-                  Post a new favor →
-                </span>
+                <span style={s.postNewLink} onClick={() => navigate('/favors/new')}>Post a new favor →</span>
               </div>
               {loadingPosted ? <LoadingBox /> : postedFavors.length === 0 ? (
                 <EmptyBox message="You haven't posted any favors yet." />
@@ -275,6 +271,7 @@ const MyActivityPage = () => {
                     onDeleteCancel={() => setDeleteConfirm(null)}
                     onDeleteConfirm={() => handleDelete(favor.id)}
                     onComplete={() => handleComplete(favor.id)}
+                    onReopen={() => handleReopen(favor.id)}
                   />
                 ))
               )}
@@ -285,9 +282,7 @@ const MyActivityPage = () => {
           {activeTab === 'claimed' && (
             <div>
               <h2 style={{ ...s.tabContentTitle, marginBottom: '8px' }}>Favors You're Helping With</h2>
-              <p style={{ ...s.pageSubtitle, marginBottom: '20px' }}>
-                These are favors you claimed from neighbors.
-              </p>
+              <p style={{ ...s.pageSubtitle, marginBottom: '20px' }}>These are favors you claimed from neighbors.</p>
               {loadingClaimed ? <LoadingBox /> : claimedFavors.length === 0 ? (
                 <EmptyBox message="You haven't claimed any favors yet." />
               ) : (
@@ -295,7 +290,9 @@ const MyActivityPage = () => {
                   <ClaimedFavorCard
                     key={favor.id}
                     favor={favor}
+                    actionLoading={actionLoading}
                     onView={() => navigate(`/favors/${favor.id}`)}
+                    onCancelClaim={() => handleCancelClaim(favor.id)}
                   />
                 ))
               )}
@@ -306,25 +303,19 @@ const MyActivityPage = () => {
           {activeTab === 'completed' && (
             <div>
               <h2 style={{ ...s.tabContentTitle, marginBottom: '8px' }}>Favors You've Completed</h2>
-              <p style={{ ...s.pageSubtitle, marginBottom: '20px' }}>
-                Favors you helped complete. Each one earned you +1 reputation.
-              </p>
+              <p style={{ ...s.pageSubtitle, marginBottom: '20px' }}>Favors you helped complete. Each earned you +1 reputation.</p>
               {loadingClaimed ? <LoadingBox /> : completedFavors.length === 0 ? (
                 <EmptyBox message="You haven't completed any favors yet." />
               ) : (
                 completedFavors.map(favor => (
-                  <CompletedFavorCard
-                    key={favor.id}
-                    favor={favor}
-                    onView={() => navigate(`/favors/${favor.id}`)}
-                  />
+                  <CompletedFavorCard key={favor.id} favor={favor} onView={() => navigate(`/favors/${favor.id}`)} />
                 ))
               )}
             </div>
           )}
         </div>
 
-        {/* ── RIGHT SIDEBAR ── */}
+        {/* ── RIGHT SIDEBAR ─────────────────────────────────────────────── */}
         <div style={s.sidebar}>
           <div style={s.sideCard}>
             <h3 style={s.sideCardTitle}>📊 Activity Summary</h3>
@@ -360,34 +351,50 @@ const MyActivityPage = () => {
             </div>
           </div>
 
+          {/* ── Reputation History — now shows real +/- data ─────────────── */}
           <div style={s.sideCard}>
             <h3 style={s.sideCardTitle}>⭐ Reputation History</h3>
-            {loadingClaimed ? (
+            {loadingReputation ? (
               <LoadingBox small />
-            ) : completedFavors.length === 0 ? (
+            ) : repHistory.length === 0 ? (
               <p style={s.emptyText}>No reputation history yet. Help a neighbor!</p>
             ) : (
               <>
                 <div style={s.repHistoryList}>
-                  {completedFavors.slice(0, 5).map(favor => (
-                    <div key={favor.id} style={s.repHistoryItem}>
-                      <div style={s.repHistoryDot} />
-                      <div style={s.repHistoryInfo}>
-                        <div style={s.repHistoryTitle}>
-                          Helped {favor.requesterName} with {(favor.category || 'favor').toLowerCase()}
+                  {repHistory.slice(0, 8).map((item, i) => {
+                    const isGain = item.points > 0;
+                    const pts    = isGain ? `+${item.points} pt` : `${item.points} pts`;
+                    return (
+                      <div key={i} style={s.repHistoryItem}>
+                        {/* Dot — green for gain, red for penalty */}
+                        <div style={{
+                          ...s.repHistoryDot,
+                          background: isGain ? '#C8601A' : '#c62828',
+                        }} />
+                        <div style={s.repHistoryInfo}>
+                          <div style={s.repHistoryTitle}>{item.reason}</div>
+                          <div style={s.repHistoryDate}>{formatDate(item.createdAt)}</div>
                         </div>
-                        <div style={s.repHistoryDate}>{formatDate(favor.completedAt)}</div>
+                        {/* Points badge — green or red */}
+                        <div style={{
+                          ...s.repHistoryPoints,
+                          background: isGain ? '#E8F5E9' : '#FFEBEE',
+                          color:      isGain ? '#2E7D32' : '#c62828',
+                        }}>
+                          {pts}
+                        </div>
                       </div>
-                      <div style={s.repHistoryPoints}>+1 pt</div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
+                {/* Footer summary */}
                 <div style={s.repHistoryFooter}>
-                  You've earned{' '}
-                  <strong>
-                    {completedFavors.length} reputation point{completedFavors.length !== 1 ? 's' : ''}
-                  </strong>{' '}
-                  in total. Keep it up! 🎉
+                  Current score:{' '}
+                  <strong style={{ color: '#C8601A' }}>
+                    {reputation?.reputationScore ?? 0} pts
+                  </strong>
+                  {' '}·{' '}
+                  {repHistory.length} event{repHistory.length !== 1 ? 's' : ''} total
                 </div>
               </>
             )}
@@ -401,6 +408,7 @@ const MyActivityPage = () => {
 // ══════════════════════════════════════════════════════════════════════════════
 // SUB-COMPONENTS
 // ══════════════════════════════════════════════════════════════════════════════
+
 const StatCard = ({ icon, value, label }) => (
   <div style={s.statCard}>
     <div style={s.statIcon}>{icon}</div>
@@ -426,7 +434,7 @@ const EmptyBox = ({ message }) => (
 
 const PostedFavorCard = ({
   favor, actionLoading, deleteConfirm,
-  onView, onEdit, onDeleteRequest, onDeleteCancel, onDeleteConfirm, onComplete
+  onView, onEdit, onDeleteRequest, onDeleteCancel, onDeleteConfirm, onComplete, onReopen
 }) => {
   const category    = favor.category || 'Other';
   const statusColor = STATUS_COLORS[favor.status] || STATUS_COLORS.OPEN;
@@ -440,14 +448,13 @@ const PostedFavorCard = ({
         <div style={s.favorCardBody}>
           <div style={s.favorCardTop}>
             <h3 style={s.favorCardTitle}>{favor.title}</h3>
-            <span style={{ ...s.statusBadge, background: statusColor.bg, color: statusColor.text }}>
-              {favor.status}
-            </span>
+            <span style={{ ...s.statusBadge, background: statusColor.bg, color: statusColor.text }}>{favor.status}</span>
           </div>
           <p style={s.favorCardDesc}>{favor.description}</p>
           <div style={s.favorCardMeta}>Posted {formatDateShort(favor.createdAt)}</div>
         </div>
       </div>
+
       <div style={s.favorCardActions} onClick={e => e.stopPropagation()}>
         {favor.status === 'OPEN' && !isDeleting && (
           <div style={s.actionBtnRow}>
@@ -489,9 +496,10 @@ const PostedFavorCard = ({
               <span style={s.claimedByText}>Claimed by {favor.claimerName}</span>
             </div>
             <button style={{ ...s.confirmBtn, opacity: isActing ? 0.7 : 1 }} onClick={onComplete} disabled={isActing}>
-              {isActing ? 'Confirming…' : (
-                <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Confirm Completion</>
-              )}
+              {isActing ? 'Confirming…' : <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Confirm Completion</>}
+            </button>
+            <button style={{ ...s.reopenBtn, opacity: isActing ? 0.7 : 1 }} onClick={onReopen} disabled={isActing} title="Helper abandoned? Re-open for others. Deducts -2 rep from helper.">
+              {isActing ? 'Processing…' : <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg> Re-open Favor</>}
             </button>
           </div>
         )}
@@ -506,17 +514,27 @@ const PostedFavorCard = ({
             <span style={s.completedDate}>Completed {formatDateShort(favor.completedAt)}</span>
           </div>
         )}
+        {favor.status === 'EXPIRED' && (
+          <div style={s.expiredInfo}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9E9E9E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span style={s.expiredText}>This favor has expired</span>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-const ClaimedFavorCard = ({ favor, onView }) => {
+const ClaimedFavorCard = ({ favor, onView, actionLoading, onCancelClaim }) => {
   const category    = favor.category || 'Other';
   const statusColor = STATUS_COLORS[favor.status] || STATUS_COLORS.CLAIMED;
+  const isActing    = actionLoading === favor.id;
+
   return (
-    <div style={{ ...s.favorCard, cursor: 'pointer' }} onClick={onView}>
-      <div style={s.favorCardLeft}>
+    <div style={s.favorCard}>
+      <div style={{ ...s.favorCardLeft, cursor: 'pointer' }} onClick={onView}>
         <div style={s.favorIconWrap}>{CATEGORY_ICONS[category] || CATEGORY_ICONS.Other}</div>
         <div style={s.favorCardBody}>
           <div style={s.favorCardTop}>
@@ -535,10 +553,24 @@ const ClaimedFavorCard = ({ favor, onView }) => {
           </div>
         </div>
       </div>
-      <div style={{ alignSelf: 'center' }}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="9 18 15 12 9 6"/>
-        </svg>
+      <div style={s.favorCardActions} onClick={e => e.stopPropagation()}>
+        <button
+          style={{ ...s.cancelClaimBtn, opacity: isActing ? 0.7 : 1 }}
+          onClick={onCancelClaim}
+          disabled={isActing}
+          title="Cancel your claim. Deducts -1 rep."
+        >
+          {isActing ? (
+            <span style={s.btnInnerSmall}><div style={s.btnSpinnerRed} /> Cancelling…</span>
+          ) : (
+            <span style={s.btnInnerSmall}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+              </svg>
+              Cancel Claim
+            </span>
+          )}
+        </button>
       </div>
     </div>
   );
@@ -616,9 +648,15 @@ const s = {
   claimedByText: { fontSize: '12px', color: '#555', fontWeight: '500' },
   miniAvatar: { width: '22px', height: '22px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '9px', fontWeight: '700', flexShrink: 0 },
   confirmBtn: { display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '10px', border: 'none', background: '#2E7D32', color: 'white', fontSize: '13px', fontWeight: '600', cursor: 'pointer' },
+  reopenBtn: { display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '10px', border: '1.5px solid #FFD0A0', background: '#FFF8F0', color: '#C8601A', fontSize: '12px', fontWeight: '600', cursor: 'pointer' },
   completedInfo: { display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' },
   completedDate: { fontSize: '11px', color: '#aaa' },
+  expiredInfo: { display: 'flex', alignItems: 'center', gap: '6px' },
+  expiredText: { fontSize: '12px', color: '#9E9E9E', fontWeight: '500' },
   repBadge: { background: '#E8F5E9', color: '#2E7D32', fontSize: '12px', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', flexShrink: 0, alignSelf: 'center' },
+  cancelClaimBtn: { padding: '8px 14px', borderRadius: '10px', border: '1.5px solid #FFCDD2', background: '#FFF5F5', color: '#c62828', fontSize: '12px', fontWeight: '600', cursor: 'pointer', alignSelf: 'center' },
+  btnInnerSmall: { display: 'flex', alignItems: 'center', gap: '6px' },
+  btnSpinnerRed: { width: '12px', height: '12px', border: '2px solid rgba(198,40,40,0.3)', borderTop: '2px solid #c62828', borderRadius: '50%', animation: 'spin 0.7s linear infinite', flexShrink: 0 },
   loadingBox: { display: 'flex', justifyContent: 'center', alignItems: 'center' },
   spinner: { width: '24px', height: '24px', border: '3px solid #f0ece6', borderTop: '3px solid #C8601A', borderRadius: '50%', animation: 'spin 0.7s linear infinite' },
   emptyBox: { display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 0', gap: '10px' },
@@ -637,11 +675,11 @@ const s = {
   completionText: { fontSize: '12px', color: '#aaa', margin: 0 },
   repHistoryList: { display: 'flex', flexDirection: 'column' },
   repHistoryItem: { display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '10px 0', borderBottom: '1px solid #f5f5f5' },
-  repHistoryDot: { width: '8px', height: '8px', borderRadius: '50%', background: '#C8601A', marginTop: '4px', flexShrink: 0 },
+  repHistoryDot: { width: '8px', height: '8px', borderRadius: '50%', marginTop: '4px', flexShrink: 0 },
   repHistoryInfo: { flex: 1, minWidth: 0 },
-  repHistoryTitle: { fontSize: '13px', color: '#333', fontWeight: '500', marginBottom: '2px' },
+  repHistoryTitle: { fontSize: '13px', color: '#333', fontWeight: '500', marginBottom: '2px', lineHeight: '1.4' },
   repHistoryDate: { fontSize: '11px', color: '#aaa' },
-  repHistoryPoints: { background: '#E8F5E9', color: '#2E7D32', fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '20px', flexShrink: 0 },
+  repHistoryPoints: { fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '20px', flexShrink: 0, whiteSpace: 'nowrap' },
   repHistoryFooter: { marginTop: '12px', fontSize: '13px', color: '#555', background: '#FAF7F2', borderRadius: '10px', padding: '10px 12px', lineHeight: '1.5' },
 };
 

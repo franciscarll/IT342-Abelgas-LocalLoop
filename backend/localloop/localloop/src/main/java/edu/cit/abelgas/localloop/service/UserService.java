@@ -1,41 +1,66 @@
 package edu.cit.abelgas.localloop.service;
 
+import edu.cit.abelgas.localloop.dto.response.ReputationHistoryResponse;
 import edu.cit.abelgas.localloop.dto.response.ReputationResponse;
 import edu.cit.abelgas.localloop.dto.response.UserResponse;
 import edu.cit.abelgas.localloop.entity.User;
 import edu.cit.abelgas.localloop.repository.FavorRepository;
+import edu.cit.abelgas.localloop.repository.ReputationHistoryRepository;
 import edu.cit.abelgas.localloop.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 
-    private final FavorRepository favorRepository;
-    private final UserRepository userRepository;
+    private final FavorRepository             favorRepository;
+    private final UserRepository              userRepository;
+    private final ReputationHistoryRepository historyRepository;
 
-    public UserService(FavorRepository favorRepository, UserRepository userRepository) {
-        this.favorRepository = favorRepository;
-        this.userRepository = userRepository;
+    public UserService(FavorRepository favorRepository,
+                       UserRepository userRepository,
+                       ReputationHistoryRepository historyRepository) {
+        this.favorRepository   = favorRepository;
+        this.userRepository    = userRepository;
+        this.historyRepository = historyRepository;
     }
 
+    /**
+     * GET /api/users/me/reputation
+     * Returns full reputation data including history for the current user.
+     */
     public ReputationResponse getReputation(User user) {
         long posted    = favorRepository.countByRequesterId(user.getId());
         long completed = favorRepository.countByClaimerIdAndStatus(user.getId(), "COMPLETED");
+
+        List<ReputationHistoryResponse> history = historyRepository
+                .findByUserIdOrderByCreatedAtDesc(user.getId())
+                .stream()
+                .map(h -> new ReputationHistoryResponse(h.getPoints(), h.getReason(), h.getCreatedAt()))
+                .collect(Collectors.toList());
+
         return ReputationResponse.builder()
                 .reputationScore(user.getReputationScore())
                 .favorsPosted(posted)
                 .favorsCompleted(completed)
+                .history(history)
                 .build();
     }
 
-    // ── Get reputation stats for a user (used by Favor Detail sidebar) ───────
+    /**
+     * GET /api/users/{id}/reputation
+     * Returns reputation stats for another user (Favor Detail sidebar).
+     * History is intentionally excluded here — no need to expose it publicly.
+     */
     public ReputationResponse getUserReputation(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         long posted    = favorRepository.countByRequesterId(userId);
         long completed = favorRepository.countByClaimerIdAndStatus(userId, "COMPLETED");
+
         return ReputationResponse.builder()
                 .userId(user.getId())
                 .name(user.getName())
@@ -47,12 +72,11 @@ public class UserService {
     }
 
     /**
-     * Updates the authenticated user's profile fields.
-     * Currently supports: barangay, name, profileImageUrl.
-     * Called by SelectBarangayPage (PUT /api/users/profile) after Google OAuth.
+     * PUT /api/users/profile
+     * Updates barangay, name, or profileImageUrl.
+     * Called by SelectBarangayPage after Google OAuth.
      */
     public UserResponse updateProfile(User user, Map<String, String> body) {
-        // Re-fetch from DB to get the latest persisted state
         User dbUser = userRepository.findById(user.getId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 

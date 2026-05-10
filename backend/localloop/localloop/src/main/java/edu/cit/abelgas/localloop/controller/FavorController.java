@@ -21,10 +21,6 @@ public class FavorController {
         this.favorService = favorService;
     }
 
-    /**
-     * GET /api/favors?page=0&size=5&category=Errand&status=OPEN
-     * Returns favors in the authenticated user's barangay.
-     */
     @GetMapping
     public ResponseEntity<ApiResponse<Page<FavorResponse>>> getOpenFavors(
             @AuthenticationPrincipal User user,
@@ -32,81 +28,52 @@ public class FavorController {
             @RequestParam(defaultValue = "5")  int size,
             @RequestParam(required = false)    String category,
             @RequestParam(required = false)    String status) {
-        Page<FavorResponse> data = favorService.getOpenFavors(
-                user.getBarangay(), category, status, page, size);
-        return ResponseEntity.ok(ApiResponse.success(data));
+        return ResponseEntity.ok(ApiResponse.success(
+                favorService.getOpenFavors(user.getBarangay(), category, status, page, size)));
     }
 
-    /**
-     * GET /api/favors/{id}
-     * Returns details of a single favor by ID.
-     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<FavorResponse>> getFavorById(
             @PathVariable Long id,
             @AuthenticationPrincipal User user) {
-        FavorResponse data = favorService.getFavorById(id, user);
-        return ResponseEntity.ok(ApiResponse.success(data));
+        return ResponseEntity.ok(ApiResponse.success(favorService.getFavorById(id, user)));
     }
 
-    /**
-     * GET /api/favors/my-posted?page=0&size=10
-     * Returns all favors posted by the current user (any status).
-     * Used by My Activity Page → Posted Favors tab.
-     */
     @GetMapping("/my-posted")
     public ResponseEntity<ApiResponse<Page<FavorResponse>>> getMyPostedFavors(
             @AuthenticationPrincipal User user,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "0")  int page,
             @RequestParam(defaultValue = "10") int size) {
-        Page<FavorResponse> data = favorService.getMyPostedFavors(user.getId(), page, size);
-        return ResponseEntity.ok(ApiResponse.success(data));
+        return ResponseEntity.ok(ApiResponse.success(
+                favorService.getMyPostedFavors(user.getId(), page, size)));
     }
 
-    /**
-     * GET /api/favors/my-claimed?page=0&size=10
-     * Returns all favors claimed by the current user (any status).
-     * Used by My Activity Page → Claimed & Completed Favors tabs.
-     */
     @GetMapping("/my-claimed")
     public ResponseEntity<ApiResponse<Page<FavorResponse>>> getMyClaimedFavors(
             @AuthenticationPrincipal User user,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "0")  int page,
             @RequestParam(defaultValue = "10") int size) {
-        Page<FavorResponse> data = favorService.getMyClaimedFavors(user.getId(), page, size);
-        return ResponseEntity.ok(ApiResponse.success(data));
+        return ResponseEntity.ok(ApiResponse.success(
+                favorService.getMyClaimedFavors(user.getId(), page, size)));
     }
 
-    /**
-     * POST /api/favors
-     * Create / post a new favor.
-     */
     @PostMapping
     public ResponseEntity<ApiResponse<FavorResponse>> postFavor(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody FavorRequest request) {
-        FavorResponse data = favorService.postFavor(request, user);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(data));
+                .body(ApiResponse.success(favorService.postFavor(request, user)));
     }
 
-    /**
-     * PUT /api/favors/{id}
-     * Edit a favor. Only the requester can edit, and only if status is OPEN.
-     */
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<FavorResponse>> updateFavor(
             @PathVariable Long id,
             @AuthenticationPrincipal User user,
             @Valid @RequestBody FavorRequest request) {
-        FavorResponse data = favorService.updateFavor(id, request, user);
-        return ResponseEntity.ok(ApiResponse.success(data));
+        return ResponseEntity.ok(ApiResponse.success(
+                favorService.updateFavor(id, request, user)));
     }
 
-    /**
-     * DELETE /api/favors/{id}
-     * Delete a favor. Only the requester can delete, and only if status is OPEN.
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteFavor(
             @PathVariable Long id,
@@ -115,28 +82,44 @@ public class FavorController {
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
-    /**
-     * POST /api/favors/{id}/claim
-     * Claim an open favor.
-     */
     @PostMapping("/{id}/claim")
     public ResponseEntity<ApiResponse<FavorResponse>> claimFavor(
             @PathVariable Long id,
             @AuthenticationPrincipal User user) {
-        FavorResponse data = favorService.claimFavor(id, user);
-        return ResponseEntity.ok(ApiResponse.success(data));
+        return ResponseEntity.ok(ApiResponse.success(favorService.claimFavor(id, user)));
+    }
+
+    /**
+     * PUT /api/favors/{id}/cancel-claim
+     * Only the claimer can cancel. Deducts -1 rep from helper.
+     */
+    @PutMapping("/{id}/cancel-claim")
+    public ResponseEntity<ApiResponse<FavorResponse>> cancelClaim(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(ApiResponse.success(favorService.cancelClaim(id, user)));
+    }
+
+    /**
+     * PUT /api/favors/{id}/reopen
+     * Only the requester can re-open a CLAIMED favor.
+     * Deducts -2 rep from the helper who abandoned.
+     */
+    @PutMapping("/{id}/reopen")
+    public ResponseEntity<ApiResponse<FavorResponse>> reopenFavor(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(ApiResponse.success(favorService.reopenFavor(id, user)));
     }
 
     /**
      * PUT /api/favors/{id}/complete
-     * Confirms completion; only the requester can call this.
-     * Awards +1 reputation to the helper (claimer).
+     * Only the requester can confirm completion. Awards +1 rep to helper.
      */
     @PutMapping("/{id}/complete")
     public ResponseEntity<ApiResponse<FavorResponse>> completeFavor(
             @PathVariable Long id,
             @AuthenticationPrincipal User user) {
-        FavorResponse data = favorService.completeFavor(id, user);
-        return ResponseEntity.ok(ApiResponse.success(data));
+        return ResponseEntity.ok(ApiResponse.success(favorService.completeFavor(id, user)));
     }
 }

@@ -6,21 +6,25 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-/**
- * Response DTO returned by GET /api/users/{id}/reputation
- * Used by FavorDetailPage to show requester stats in the sidebar.
- */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReputationResponse {
 
-    private Long userId;
+    private Long   userId;
     private String name;
-    private int reputationScore;
-    private long favorsPosted;
-    private long favorsCompleted;
-    private LocalDateTime memberSince; // maps to user.createdAt
+    private int    reputationScore;
+    private long   favorsPosted;
+    private long   favorsCompleted;
+    private LocalDateTime memberSince;
+
+    /**
+     * Full reputation history — both gains (+) and penalties (-).
+     * Ordered newest first. Populated by GET /api/users/me/reputation.
+     * Null for other users' reputation lookups (e.g. FavorDetail sidebar).
+     */
+    private List<ReputationHistoryResponse> history;
 }
