@@ -2,6 +2,8 @@ package edu.cit.abelgas.localloop.features.favor;
 
 import edu.cit.abelgas.localloop.features.auth.User;
 import edu.cit.abelgas.localloop.features.auth.UserRepository;
+import edu.cit.abelgas.localloop.features.profile.ReputationHistory;
+import edu.cit.abelgas.localloop.features.profile.ReputationHistoryRepository;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -12,18 +14,23 @@ import java.time.LocalDateTime;
 @Service
 public class FavorService {
 
-    private final FavorRepository favorRepository;
-    private final UserRepository  userRepository;
+    private final FavorRepository             favorRepository;
+    private final UserRepository              userRepository;
+    private final ReputationHistoryRepository historyRepository;
 
-    public FavorService(FavorRepository favorRepository, UserRepository userRepository) {
-        this.favorRepository = favorRepository;
-        this.userRepository  = userRepository;
+    public FavorService(FavorRepository favorRepository,
+                        UserRepository userRepository,
+                        ReputationHistoryRepository historyRepository) {
+        this.favorRepository   = favorRepository;
+        this.userRepository    = userRepository;
+        this.historyRepository = historyRepository;
     }
 
     // ── Get favors in barangay (Dashboard + Favor Feed) ───────────────────────
     public Page<FavorResponse> getOpenFavors(String barangay, String category,
                                              String status, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page, size,
+                Sort.by(Sort.Direction.DESC, "createdAt"));
         String effectiveStatus = (status != null && !status.isBlank()) ? status : "OPEN";
         Page<Favor> results;
 
@@ -42,12 +49,14 @@ public class FavorService {
 
     // ── My Activity ───────────────────────────────────────────────────────────
     public Page<FavorResponse> getMyPostedFavors(Long userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page, size,
+                Sort.by(Sort.Direction.DESC, "createdAt"));
         return favorRepository.findByRequesterId(userId, pageable).map(this::toResponse);
     }
 
     public Page<FavorResponse> getMyClaimedFavors(Long userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page, size,
+                Sort.by(Sort.Direction.DESC, "createdAt"));
         return favorRepository.findByClaimerId(userId, pageable).map(this::toResponse);
     }
 
@@ -113,12 +122,7 @@ public class FavorService {
         return toResponse(favorRepository.save(favor));
     }
 
-    // ── Cancel Claim (helper cancels) ─────────────────────────────────────────
-    /**
-     * Only the claimer can cancel.
-     * Penalty: -1 reputation point (min 0).
-     * Status resets to OPEN; claimer fields cleared.
-     */
+    // ── Cancel Claim ──────────────────────────────────────────────────────────
     public FavorResponse cancelClaim(Long favorId, User caller) {
         Favor favor = favorRepository.findById(favorId)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -132,10 +136,9 @@ public class FavorService {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN, "Only the claimer can cancel this claim");
 
-        // ── Reputation penalty: -1 from helper ───────────────────────────────
-        deductReputation(caller.getId(), 1);
+        deductReputation(caller.getId(), 1,
+                "Cancelled claimed favor: " + favor.getTitle());
 
-        // ── Reset favor to OPEN ───────────────────────────────────────────────
         favor.setStatus("OPEN");
         favor.setClaimerId(null);
         favor.setClaimerName(null);
@@ -144,12 +147,7 @@ public class FavorService {
         return toResponse(favorRepository.save(favor));
     }
 
-    // ── Re-open Favor (requester re-opens abandoned favor) ────────────────────
-    /**
-     * Only the requester can re-open a CLAIMED favor.
-     * Penalty: -2 reputation points from the helper who abandoned (min 0).
-     * Status resets to OPEN; claimer fields cleared.
-     */
+    // ── Re-open Favor ─────────────────────────────────────────────────────────
     public FavorResponse reopenFavor(Long favorId, User requester) {
         Favor favor = favorRepository.findById(favorId)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -163,12 +161,11 @@ public class FavorService {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN, "Only the requester can re-open this favor");
 
-        // ── Reputation penalty: -2 from the helper who abandoned ─────────────
         if (favor.getClaimerId() != null) {
-            deductReputation(favor.getClaimerId(), 2);
+            deductReputation(favor.getClaimerId(), 2,
+                    "Favor re-opened by requester: " + favor.getTitle());
         }
 
-        // ── Reset favor to OPEN ───────────────────────────────────────────────
         favor.setStatus("OPEN");
         favor.setClaimerId(null);
         favor.setClaimerName(null);
@@ -198,28 +195,48 @@ public class FavorService {
         favor.setCompletedAt(LocalDateTime.now());
         favorRepository.save(favor);
 
-        // +1 reputation to helper
         if (favor.getClaimerId() != null) {
-            userRepository.findById(favor.getClaimerId()).ifPresent(helper -> {
-                helper.setReputationScore(helper.getReputationScore() + 1);
-                userRepository.save(helper);
-            });
+            awardReputation(favor.getClaimerId(), 1,
+                    "Completed favor: " + favor.getTitle());
         }
 
         return toResponse(favor);
     }
 
-    // ── Reputation helper ─────────────────────────────────────────────────────
-    /**
-     * Deducts points from a user's reputation score.
-     * Score cannot go below 0.
-     */
-    private void deductReputation(Long userId, int points) {
-        userRepository.findById(userId).ifPresent(user -> {
-            int current = user.getReputationScore() != null ? user.getReputationScore() : 0;
-            user.setReputationScore(Math.max(0, current - points));
-            userRepository.save(user);
-        });
+    // ── Reputation helpers ────────────────────────────────────────────────────
+    //
+    // CRITICAL FIX: Previously used ifPresent() which silently swallowed any
+    // exception thrown by historyRepository.save(). If the DB insert failed
+    // for any reason (constraint, schema, type mismatch), the error was lost
+    // and the method returned successfully — making it impossible to debug.
+    //
+    // Now using explicit findById + orElseThrow so ALL exceptions propagate
+    // up the call stack and appear in the Spring Boot logs.
+
+    private void awardReputation(Long userId, int points, String reason) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException(
+                        "User not found for reputation award: " + userId));
+
+        int current = user.getReputationScore() != null ? user.getReputationScore() : 0;
+        user.setReputationScore(current + points);
+        userRepository.save(user);
+
+        // Save history — any failure here will now throw and appear in logs
+        historyRepository.save(new ReputationHistory(userId, points, reason));
+    }
+
+    private void deductReputation(Long userId, int points, String reason) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException(
+                        "User not found for reputation deduction: " + userId));
+
+        int current = user.getReputationScore() != null ? user.getReputationScore() : 0;
+        user.setReputationScore(Math.max(0, current - points));
+        userRepository.save(user);
+
+        // Save history — any failure here will now throw and appear in logs
+        historyRepository.save(new ReputationHistory(userId, -points, reason));
     }
 
     // ── Mapper ────────────────────────────────────────────────────────────────

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../shared/context/AuthContext';
-import ApiClient from '../../shared/api/ApiClient';
+import api from '../../shared/api/axios';
 import Navbar from '../../shared/components/Navbar';
+import { useNotification } from '../../shared/context/NotificationContext';
 
-const api = ApiClient.getInstance();
 // ── Utilities ──────────────────────────────────────────────────────────────────
 function timeAgo(dateStr) {
   if (!dateStr) return '';
@@ -68,6 +68,7 @@ if (typeof document !== 'undefined' && !document.getElementById('ll-spin-style')
 const FavorFeedPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { refreshBadge } = useNotification();
 
   // ── Filters & state ──────────────────────────────────────────────────────
   const [favors, setFavors] = useState([]);
@@ -154,16 +155,21 @@ const FavorFeedPage = () => {
   };
 
   const handleClaim = async (favorId) => {
-    const favor = favors.find(f => f.id === favorId);
-    if (favor && favor.requesterId === user?.id) return;
-    try {
-      await api.post(`/favors/${favorId}/claim`);
-      setFavors(prev => prev.filter(f => f.id !== favorId));
-      setStatusCounts(prev => ({ ...prev, OPEN: Math.max(0, prev.OPEN - 1), CLAIMED: prev.CLAIMED + 1 }));
-    } catch (err) {
-      alert(err.response?.data?.error?.message || 'Could not claim this favor.');
-    }
-  };
+  const favor = favors.find(f => f.id === favorId);
+  if (favor && favor.requesterId === user?.id) return;
+  try {
+    await api.post(`/favors/${favorId}/claim`);
+    setFavors(prev => prev.filter(f => f.id !== favorId));
+    setStatusCounts(prev => ({
+      ...prev,
+      OPEN: Math.max(0, prev.OPEN - 1),
+      CLAIMED: prev.CLAIMED + 1,
+    }));
+    refreshBadge(); // ✅ ADD THIS
+  } catch (err) {
+    alert(err.response?.data?.error?.message || 'Could not claim this favor.');
+  }
+};
 
   const handlePageChange = (page) => {
     if (page < 0 || page >= totalPages) return;

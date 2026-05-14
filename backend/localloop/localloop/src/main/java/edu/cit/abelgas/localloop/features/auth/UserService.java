@@ -29,19 +29,36 @@ public class UserService {
     /**
      * GET /api/users/me/reputation
      * Returns full reputation data including history for the current user.
+     *
+     * FIX: Re-fetch user from DB so reputationScore is always the latest
+     * persisted value — not the stale JWT-loaded value which never updates.
+     * Also populates userId, name, memberSince which were previously missing.
      */
     public ReputationResponse getReputation(User user) {
-        long posted    = favorRepository.countByRequesterId(user.getId());
-        long completed = favorRepository.countByClaimerIdAndStatus(user.getId(), "COMPLETED");
+        // ── FIX: always re-fetch from DB — the JWT-loaded user object
+        // has a stale reputationScore from the time of login. ─────────────────
+        User dbUser = userRepository.findById(user.getId())
+                .orElse(user); // fall back to JWT user if somehow not found
+
+        long posted    = favorRepository.countByRequesterId(dbUser.getId());
+        long completed = favorRepository.countByClaimerIdAndStatus(dbUser.getId(), "COMPLETED");
 
         List<ReputationHistoryResponse> history = historyRepository
-                .findByUserIdOrderByCreatedAtDesc(user.getId())
+                .findByUserIdOrderByCreatedAtDesc(dbUser.getId())
                 .stream()
-                .map(h -> new ReputationHistoryResponse(h.getPoints(), h.getReason(), h.getCreatedAt()))
+                .map(h -> new ReputationHistoryResponse(
+                        h.getPoints(),
+                        h.getReason(),
+                        h.getCreatedAt()))
                 .collect(Collectors.toList());
 
         return ReputationResponse.builder()
-                .reputationScore(user.getReputationScore())
+                // ── FIX: these were missing — now populated correctly ─────────
+                .userId(dbUser.getId())
+                .name(dbUser.getName())
+                .memberSince(dbUser.getCreatedAt())
+                // ── FIX: use dbUser.getReputationScore() not user's stale copy
+                .reputationScore(dbUser.getReputationScore())
                 .favorsPosted(posted)
                 .favorsCompleted(completed)
                 .history(history)
@@ -51,7 +68,7 @@ public class UserService {
     /**
      * GET /api/users/{id}/reputation
      * Returns reputation stats for another user (Favor Detail sidebar).
-     * History is intentionally excluded here — no need to expose it publicly.
+     * History intentionally excluded — no need to expose publicly.
      */
     public ReputationResponse getUserReputation(Long userId) {
         User user = userRepository.findById(userId)

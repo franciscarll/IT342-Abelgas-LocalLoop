@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../shared/context/AuthContext';
 import api from '../../shared/api/axios';
 import Navbar from '../../shared/components/Navbar';
+import { useNotification } from '../../shared/context/NotificationContext';
 
 const AVATAR_COLORS = [
   '#C8601A', '#2E86AB', '#A23B72', '#F18F01',
@@ -76,6 +77,7 @@ if (typeof document !== 'undefined' && !document.getElementById('ll-spin-style')
 const MyActivityPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { refreshBadge } = useNotification();
 
   const userRef = useRef(user);
   useEffect(() => { userRef.current = user; }, [user]);
@@ -145,6 +147,7 @@ const MyActivityPage = () => {
       setPostedFavors(prev => prev.filter(f => f.id !== favorId));
       setDeleteConfirm(null);
       fetchReputation();
+      refreshBadge();
     } catch (err) {
       alert(err.response?.data?.error?.message || 'Could not delete this favor.');
     } finally { setActionLoading(null); }
@@ -159,6 +162,7 @@ const MyActivityPage = () => {
       setPostedFavors(prev => prev.map(f => f.id === favorId ? updated : f));
       fetchReputation();
       fetchClaimed();
+      refreshBadge();
     } catch (err) {
       alert(err.response?.data?.error?.message || 'Could not confirm completion.');
     } finally { setActionLoading(null); }
@@ -172,6 +176,7 @@ const MyActivityPage = () => {
       setClaimedFavors(prev => prev.filter(f => f.id !== favorId));
       // Refresh reputation — -1 was deducted and a history record was created
       fetchReputation();
+      refreshBadge();
     } catch (err) {
       alert(err.response?.data?.error?.message || 'Could not cancel this claim.');
     } finally { setActionLoading(null); }
@@ -184,29 +189,34 @@ const MyActivityPage = () => {
       const res = await api.put(`/favors/${favorId}/reopen`);
       const updated = res.data?.data || res.data;
       setPostedFavors(prev => prev.map(f => f.id === favorId ? updated : f));
+      refreshBadge();
     } catch (err) {
       alert(err.response?.data?.error?.message || 'Could not re-open this favor.');
     } finally { setActionLoading(null); }
   };
 
   // ── Derived stats ─────────────────────────────────────────────────────────
+ // ── Owner perspective (favors this user POSTED) ───────────────────────────
   const postedCount          = postedFavors.length;
-  const claimedCount         = claimedFavors.length;
-  const completedCount       = completedFavors.length;
   const openCount            = postedFavors.filter(f => f.status === 'OPEN').length;
   const postedClaimedCount   = postedFavors.filter(f => f.status === 'CLAIMED').length;
   const postedCompletedCount = postedFavors.filter(f => f.status === 'COMPLETED').length;
   const completionRate       = postedCount > 0
     ? Math.round((postedCompletedCount / postedCount) * 100) : 0;
-
-  // ── Reputation history from API ───────────────────────────────────────────
-  const repHistory = reputation?.history || [];
-
+ 
+  // ── Helper perspective (favors this user CLAIMED or COMPLETED as helper) ──
+  const claimedCount   = claimedFavors.length;
+  const completedCount = completedFavors.length;
+ 
+  // ── Tab badges ─────────────────────────────────────────────────────────────
   const tabs = [
     { key: 'posted',    label: 'Posted Favors',    count: postedCount },
     { key: 'claimed',   label: 'Claimed Favors',   count: claimedCount },
     { key: 'completed', label: 'Completed Favors', count: completedCount },
   ];
+ 
+  // ── Reputation history ─────────────────────────────────────────────────────
+  const repHistory = reputation?.history || [];
 
   return (
     <div style={s.page}>
@@ -319,16 +329,39 @@ const MyActivityPage = () => {
         <div style={s.sidebar}>
           <div style={s.sideCard}>
             <h3 style={s.sideCardTitle}>📊 Activity Summary</h3>
+ 
+            {/* ── As Owner (favors you posted) ─────────────────────────── */}
+            <div style={s.summaryGroupLabel}>As Requester</div>
             <div style={s.summaryList}>
               {[
-                { label: 'Open Favors',      value: openCount },
-                { label: 'Claimed Favors',   value: postedClaimedCount },
-                { label: 'Completed Favors', value: postedCompletedCount },
-                { label: 'Total Posted',     value: postedCount },
+                { label: 'Total Posted',      value: postedCount },
+                { label: 'Open Favors',       value: openCount },
+                { label: 'Claimed by Others', value: postedClaimedCount },
+                { label: 'Completed',         value: postedCompletedCount },
               ].map(({ label, value }) => (
                 <div key={label} style={s.summaryRow}>
                   <span style={s.summaryLabel}>{label}</span>
-                  <span style={s.summaryValue}>{loadingPosted ? '—' : value}</span>
+                  <span style={s.summaryValue}>
+                    {loadingPosted ? '—' : value}
+                  </span>
+                </div>
+              ))}
+            </div>
+ 
+            {/* ── As Helper (favors you claimed/completed) ──────────────── */}
+            <div style={{ ...s.summaryGroupLabel, marginTop: '12px' }}>
+              As Helper
+            </div>
+            <div style={s.summaryList}>
+              {[
+                { label: 'Currently Claimed', value: claimedCount },
+                { label: 'Completed',         value: completedCount },
+              ].map(({ label, value }) => (
+                <div key={label} style={s.summaryRow}>
+                  <span style={s.summaryLabel}>{label}</span>
+                  <span style={s.summaryValue}>
+                    {loadingClaimed ? '—' : value}
+                  </span>
                 </div>
               ))}
               <div style={s.summaryRow}>
@@ -338,6 +371,8 @@ const MyActivityPage = () => {
                 </span>
               </div>
             </div>
+ 
+            {/* ── Completion Rate (owner perspective) ───────────────────── */}
             <div style={s.completionSection}>
               <div style={s.completionHeader}>
                 <span style={s.completionLabel}>Completion Rate</span>
@@ -346,7 +381,11 @@ const MyActivityPage = () => {
                 <div style={{ ...s.progressFill, width: `${completionRate}%` }} />
               </div>
               <p style={s.completionText}>
-                {loadingPosted ? '—' : `${completionRate}% of your posted favors were completed`}
+                {loadingPosted
+                  ? '—'
+                  : postedCount === 0
+                    ? 'No favors posted yet'
+                    : `${completionRate}% of your posted favors were completed`}
               </p>
             </div>
           </div>
@@ -681,6 +720,15 @@ const s = {
   repHistoryDate: { fontSize: '11px', color: '#aaa' },
   repHistoryPoints: { fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '20px', flexShrink: 0, whiteSpace: 'nowrap' },
   repHistoryFooter: { marginTop: '12px', fontSize: '13px', color: '#555', background: '#FAF7F2', borderRadius: '10px', padding: '10px 12px', lineHeight: '1.5' },
+  summaryGroupLabel: {
+    fontSize: '11px',
+    fontWeight: '700',
+    color: '#aaa',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    marginBottom: '4px',
+    marginTop: '4px',
+  },
 };
 
 export default MyActivityPage;

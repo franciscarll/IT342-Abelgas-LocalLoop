@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-
+import { useNotification } from '../context/NotificationContext';
 // ── Helpers ────────────────────────────────────────────────────────────────────
 const AVATAR_COLORS = [
   '#C8601A', '#2E86AB', '#A23B72', '#F18F01',
@@ -33,6 +33,7 @@ const ADMIN_LINKS = [
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const { badgeCount } = useNotification();
   const navigate  = useNavigate();
   const location  = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -85,7 +86,12 @@ const Navbar = () => {
             style={isActive(path) ? s.navLinkActive : s.navLink}
             onClick={() => navigate(path)}
           >
-            {label}
+            <span style={s.navLinkInner}>
+              {label}
+              {label === 'My Activity' && badgeCount > 0 && (
+                <span style={s.notifBadge}>{badgeCount}</span>
+              )}
+            </span>
             {isActive(path) && <div style={s.navLinkUnderline} />}
           </span>
         ))}
@@ -287,6 +293,25 @@ const s = {
     fontSize: '13px',
     color: '#333',
     cursor: 'pointer',
+  },
+  navLinkInner: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+  },
+  notifBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: '18px',
+    height: '18px',
+    padding: '0 5px',
+    borderRadius: '9px',
+    background: '#E53935',
+    color: 'white',
+    fontSize: '10px',
+    fontWeight: '700',
+    lineHeight: '1',
   },
 };
 

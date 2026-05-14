@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../shared/context/AuthContext';
 import api from '../../shared/api/axios';
 import Navbar from '../../shared/components/Navbar';
+import { useNotification } from '../../shared/context/NotificationContext';
 
 const AVATAR_COLORS = [
   '#C8601A', '#2E86AB', '#A23B72', '#F18F01',
@@ -95,6 +96,7 @@ const STATUS_META = {
 const FavorDetailPage = () => {
   const { id } = useParams();
   const { user } = useAuth();
+  const { refreshBadge } = useNotification();
   const navigate = useNavigate();
 
   const [favor, setFavor]                   = useState(null);
@@ -137,23 +139,24 @@ const FavorDetailPage = () => {
 
   // ── Action handlers ───────────────────────────────────────────────────────
   const handleAction = async (method, endpoint, successMsg) => {
-    setActionLoading(true);
-    setActionError('');
-    setActionSuccess('');
-    try {
-      const res = await api[method](`/favors/${id}/${endpoint}`);
-      setFavor(res.data?.data || res.data);
-      if (successMsg) setActionSuccess(successMsg);
-    } catch (err) {
-      setActionError(
-        err.response?.data?.error?.message ||
-        err.response?.data?.message ||
-        'Action failed. Please try again.'
-      );
-    } finally {
-      setActionLoading(false);
-    }
-  };
+  setActionLoading(true);
+  setActionError('');
+  setActionSuccess('');
+  try {
+    const res = await api[method](`/favors/${id}/${endpoint}`);
+    setFavor(res.data?.data || res.data);
+    if (successMsg) setActionSuccess(successMsg);
+    refreshBadge(); // ✅ ADD THIS — covers claim, complete, cancel-claim, reopen
+  } catch (err) {
+    setActionError(
+      err.response?.data?.error?.message ||
+      err.response?.data?.message ||
+      'Action failed. Please try again.'
+    );
+  } finally {
+    setActionLoading(false);
+  }
+};
 
   const handleClaim        = () => handleAction('post', 'claim', 'Favor claimed! The requester has been notified.');
   const handleComplete     = () => handleAction('put',  'complete', 'Favor marked as completed! Helper earned +1 reputation.');

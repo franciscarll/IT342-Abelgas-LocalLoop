@@ -29,7 +29,11 @@ const LoginPage = () => {
       });
       const { user, accessToken } = res.data.data;
       login(user, accessToken);
-      navigate('/dashboard');
+      if (user.role === 'ROLE_ADMIN') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       const msg =
         err.response?.data?.error?.message ||

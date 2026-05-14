@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../shared/context/AuthContext';
 import api from '../../shared/api/axios';
 import Navbar from '../../shared/components/Navbar';
+import { useNotification } from '../../shared/context/NotificationContext';
 
 // ─── Utility: time ago ────────────────────────────────────────────────────────
 function timeAgo(dateStr) {
@@ -130,6 +131,7 @@ if (typeof document !== 'undefined' && !document.getElementById('ll-spin-style')
 // ══════════════════════════════════════════════════════════════════════════════
 const DashboardPage = () => {
   const { user } = useAuth();
+  const { refreshBadge } = useNotification();
   const navigate = useNavigate();
 
   const [activeCategory, setActiveCategory] = useState('All');
@@ -173,15 +175,16 @@ const DashboardPage = () => {
 
   // ── CHANGE 1: guard against claiming own favor ──────────────────────────────
   const handleClaim = async (favorId) => {
-    const favor = favors.find(f => f.id === favorId);
-    if (favor && favor.requesterId === user?.id) return;
-    try {
-      await api.post(`/favors/${favorId}/claim`);
-      setFavors(prev => prev.filter(f => f.id !== favorId));
-    } catch (err) {
-      alert(err.response?.data?.error?.message || 'Could not claim this favor.');
-    }
-  };
+  const favor = favors.find(f => f.id === favorId);
+  if (favor && favor.requesterId === user?.id) return;
+  try {
+    await api.post(`/favors/${favorId}/claim`);
+    setFavors(prev => prev.filter(f => f.id !== favorId));
+    refreshBadge(); // ✅ ADD THIS
+  } catch (err) {
+    alert(err.response?.data?.error?.message || 'Could not claim this favor.');
+  }
+};
 
   useEffect(() => {
     api.get('/weather')
