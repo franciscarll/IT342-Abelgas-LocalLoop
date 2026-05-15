@@ -146,7 +146,7 @@ const FavorDetailPage = () => {
     const res = await api[method](`/favors/${id}/${endpoint}`);
     setFavor(res.data?.data || res.data);
     if (successMsg) setActionSuccess(successMsg);
-    refreshBadge(); // ✅ ADD THIS — covers claim, complete, cancel-claim, reopen
+    refreshBadge(); 
   } catch (err) {
     setActionError(
       err.response?.data?.error?.message ||
