@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    bg_form_card.xml
+    White card used in Login and Register form sections.
+    Matches web card style:
+      background: white
+      borderRadius: 16px  → 16dp
+      boxShadow: 0 2px 16px rgba(0,0,0,0.06)  → elevation 4dp approximation
+
+    Place in:  res/drawable/bg_form_card.xml
+
+    NOTE: Android XML drawables cannot render true box-shadow.
+    Use android:elevation="4dp" on the LinearLayout in the layout XML,
+    OR wrap in a MaterialCardView with cardElevation="4dp".
+    This shape drawable handles bg + rounded corners only.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <solid android:color="#FFFFFF" />
+
+    <corners android:radius="16dp" />
+
+    <!--
+        No stroke needed — web card has no border, just shadow.
+        Shadow is achieved via elevation on the view.
+    -->
+
+</shape>

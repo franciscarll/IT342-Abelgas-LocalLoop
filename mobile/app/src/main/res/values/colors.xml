@@ -1,28 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    colors.xml — REFINED
+    Values synced exactly to LocalLoop web app (LoginPage.jsx / RegisterPage.jsx):
+      Primary orange:    #C8601A  (web: submitBtn background)
+      Primary dark:      #A34F14  (hover/ripple)
+      Primary light:     #E8894A
+      Primary very light:#FDE8D8  (ripple on outlined button)
+
+      Background cream:  #FAF7F2  (web: rightPanel background)
+      Card white:        #FFFFFF  (web: card background)
+
+      Text primary:      #1A1A1A  (web: heading color)
+      Text secondary:    #888888  (web: subheading / bottom text)
+      Text hint:         #AAAAAA  (web: placeholder / icon color)
+      Text white:        #FFFFFF
+      Text link:         #C8601A  (web: link / forgotLink color)
+      Text error:        #E53935  (web: errorMsg color)
+
+      Input border:      #E8E8E8  (web: input border — was #E0D9CF, now exact match)
+      Input focused:     #C8601A  (web: focus state implied by primary)
+      Input bg:          #FFFFFF
+
+      Error card bg:     #FFF5F5  (web: errorMsg background)
+      Error card border: #FFCDD2  (web: errorMsg border)
+
+      Divider:           #EEEEEE  (web: dividerLine background)
+-->
 <resources>
+
+    <!-- ── Brand ───────────────────────────────── -->
     <color name="primary">#C8601A</color>
     <color name="primary_dark">#A34F14</color>
     <color name="primary_light">#E8894A</color>
     <color name="primary_very_light">#FDE8D8</color>
 
+    <!-- ── Backgrounds ──────────────────────────── -->
     <color name="background_cream">#FAF7F2</color>
     <color name="background_header">#C8601A</color>
     <color name="card_white">#FFFFFF</color>
 
+    <!-- ── Text ─────────────────────────────────── -->
     <color name="text_primary">#1A1A1A</color>
-    <color name="text_secondary">#6B6B6B</color>
+    <color name="text_secondary">#888888</color>
     <color name="text_hint">#AAAAAA</color>
     <color name="text_white">#FFFFFF</color>
     <color name="text_link">#C8601A</color>
-    <color name="text_error">#D32F2F</color>
+    <color name="text_error">#E53935</color>
 
+    <!-- ── Inputs ────────────────────────────────── -->
     <color name="input_background">#FFFFFF</color>
-    <color name="input_border">#E0D9CF</color>
+    <color name="input_border">#E8E8E8</color>
     <color name="input_border_focused">#C8601A</color>
 
-    <color name="divider">#E0D9CF</color>
+    <!-- ── Error card (web exact values) ────────── -->
+    <color name="error_card_bg">#FFF5F5</color>
+    <color name="error_card_border">#FFCDD2</color>
 
+    <!-- ── Divider ───────────────────────────────── -->
+    <color name="divider">#EEEEEE</color>
+
+    <!-- ── Status chips ──────────────────────────── -->
     <color name="status_open">#C8601A</color>
     <color name="status_claimed">#1976D2</color>
     <color name="status_completed">#388E3C</color>
+
 </resources>

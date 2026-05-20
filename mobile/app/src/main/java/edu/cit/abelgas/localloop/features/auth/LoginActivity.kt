@@ -14,6 +14,15 @@ import edu.cit.abelgas.localloop.shared.util.SharedPreferencesHelper
 import kotlinx.coroutines.launch
 import java.io.IOException
 
+/**
+ * LoginActivity — REFINED (visual only, logic unchanged)
+ *
+ * Changes:
+ *  • showGeneralError / hideGeneralError now toggle the cardLoginError
+ *    container (white-red card matching web) instead of plain TextView.
+ *  • tvLoginError is still the text inside that card — binding IDs unchanged.
+ *  • All auth logic, navigation, and validation identical to original.
+ */
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
@@ -82,7 +91,7 @@ class LoginActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val response = ApiClient.service.login(
-                        LoginRequest(email = email, password = password)
+                    LoginRequest(email = email, password = password)
                 )
                 if (response.isSuccessful) {
                     val body = response.body()
@@ -121,13 +130,17 @@ class LoginActivity : AppCompatActivity() {
         binding.etPassword.isEnabled = !isLoading
     }
 
+    /**
+     * Shows the styled error card (bg #FFF5F5, border #FFCDD2)
+     * matching the web app's errorMsg style.
+     */
     private fun showGeneralError(message: String) {
         binding.tvLoginError.text = message
-        binding.tvLoginError.visibility = View.VISIBLE
+        binding.cardLoginError.visibility = View.VISIBLE
     }
 
     private fun hideGeneralError() {
-        binding.tvLoginError.visibility = View.GONE
+        binding.cardLoginError.visibility = View.GONE
     }
 
     private fun goToDashboard() {

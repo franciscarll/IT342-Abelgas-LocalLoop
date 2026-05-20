@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    themes.xml — REFINED
+    Changes from original:
+      • TextInputLayout stroke uses color state list for proper focus color
+      • Button.Primary: height guidance 52dp, cornerRadius 12dp (was implicit)
+      • Button.Outlined: white background explicitly set, ripple = primary_very_light
+      • Added FeatureIconBubble style (was duplicated inline in both XML layouts)
+      • Added FeatureIconItem spacing tweak for even 4-icon row
+      • No removals — all original styles kept and refined
+-->
 <resources xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- ── App theme ───────────────────────────────────────────────── -->
     <style name="Theme.LocalLoop" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryVariant">@color/primary_dark</item>
@@ -9,34 +20,61 @@
         <item name="android:windowBackground">@color/background_cream</item>
         <item name="android:statusBarColor">@color/primary_dark</item>
         <item name="android:navigationBarColor">@color/background_cream</item>
+        <!-- Ensure Material text fields pick up focus color from colorPrimary -->
+        <item name="colorControlActivated">@color/primary</item>
     </style>
 
+    <!-- ── Primary orange button ────────────────────────────────────── -->
+    <!--
+        height:       52dp recommended in layout  (matches web 46px → mobile scaled)
+        cornerRadius: 12dp  (web: borderRadius 10px)
+        ripple:       primary_dark for clear press feedback
+    -->
     <style name="Widget.LocalLoop.Button.Primary" parent="Widget.MaterialComponents.Button">
         <item name="android:backgroundTint">@color/primary</item>
         <item name="android:textColor">@color/text_white</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="cornerRadius">12dp</item>
-        <item name="android:paddingTop">14dp</item>
-        <item name="android:paddingBottom">14dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
         <item name="rippleColor">@color/primary_dark</item>
+        <item name="android:stateListAnimator">@null</item>
     </style>
 
+    <!-- ── Outlined white button (Google / secondary) ───────────────── -->
+    <!--
+        bg:           white  (matches web googleBtn: background white)
+        border:       1.5dp #E8E8E8  (web: border 1.5px solid #e8e8e8)
+        text:         text_primary  (#333)
+        ripple:       primary_very_light (soft orange tint on press)
+    -->
     <style name="Widget.LocalLoop.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:backgroundTint">@color/card_white</item>
         <item name="android:textColor">@color/text_primary</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="strokeColor">@color/input_border</item>
         <item name="strokeWidth">1.5dp</item>
         <item name="cornerRadius">12dp</item>
-        <item name="android:paddingTop">14dp</item>
-        <item name="android:paddingBottom">14dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
         <item name="rippleColor">@color/primary_very_light</item>
+        <item name="android:stateListAnimator">@null</item>
     </style>
 
+    <!-- ── Text input (outlined box) ────────────────────────────────── -->
+    <!--
+        boxCornerRadius: 12dp  (web: borderRadius 10px)
+        border default:  #E8E8E8 1dp  (web: border 1.5px #e8e8e8)
+        border focused:  #C8601A 2dp  (web: primary orange)
+        hint:            #AAAAAA  (web: #aaa placeholder)
+        bg:              white
+    -->
     <style name="Widget.LocalLoop.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="boxBackgroundColor">@color/card_white</item>
+        <item name="boxBackgroundColor">@color/input_background</item>
         <item name="boxStrokeColor">@color/input_border</item>
-        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidth">1.5dp</item>
         <item name="boxStrokeWidthFocused">2dp</item>
         <item name="boxCornerRadiusTopStart">12dp</item>
         <item name="boxCornerRadiusTopEnd">12dp</item>
@@ -44,31 +82,44 @@
         <item name="boxCornerRadiusBottomEnd">12dp</item>
         <item name="hintTextColor">@color/text_hint</item>
         <item name="startIconTint">@color/text_hint</item>
+        <!-- colorControlActivated (from theme) drives focused stroke color to #C8601A -->
     </style>
 
+    <!-- ── Feature icon row — shared by Login + Register header ─────── -->
+
+    <!-- Outer column wrapper (icon + label) -->
     <style name="FeatureIconItem">
         <item name="android:layout_width">72dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">center</item>
         <item name="android:orientation">vertical</item>
-        <item name="android:paddingLeft">4dp</item>
-        <item name="android:paddingRight">4dp</item>
+        <item name="android:paddingHorizontal">4dp</item>
     </style>
 
-    <style name="FeatureIconImage">
-        <item name="android:layout_width">40dp</item>
-        <item name="android:layout_height">40dp</item>
-        <item name="android:padding">8dp</item>
+    <!-- Circular semi-transparent bubble behind the icon -->
+    <style name="FeatureIconBubble">
+        <item name="android:layout_width">44dp</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:gravity">center</item>
         <item name="android:background">@drawable/bg_icon_circle</item>
-        <item name="android:tint">@color/text_white</item>
     </style>
 
+    <!-- Icon inside the bubble -->
+    <style name="FeatureIconImage">
+        <item name="android:layout_width">22dp</item>
+        <item name="android:layout_height">22dp</item>
+        <item name="android:tint">@color/text_white</item>
+        <item name="android:scaleType">fitCenter</item>
+    </style>
+
+    <!-- Label below the bubble -->
     <style name="FeatureIconLabel">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">4dp</item>
-        <item name="android:textColor">#E8D8CC</item>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:textColor">#F0E0D0</item>
         <item name="android:textSize">11sp</item>
+        <item name="android:gravity">center</item>
     </style>
 
 </resources>

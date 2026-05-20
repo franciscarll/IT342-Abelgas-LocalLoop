@@ -15,6 +15,15 @@ import edu.cit.abelgas.localloop.shared.util.SharedPreferencesHelper
 import kotlinx.coroutines.launch
 import java.io.IOException
 
+/**
+ * RegisterActivity — REFINED (visual only, logic unchanged)
+ *
+ * Changes:
+ *  • showGeneralError / hideGeneralError now toggle cardRegisterError
+ *    (the styled error card matching web errorMsg: #fff5f5 bg, #ffcdd2 border).
+ *  • tvRegisterError is still the text inside — binding IDs unchanged.
+ *  • All validation, API calls, and navigation identical to original.
+ */
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterBinding
@@ -48,7 +57,12 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    private fun validateInputs(name: String, email: String, password: String, confirmPassword: String): Boolean {
+    private fun validateInputs(
+        name: String,
+        email: String,
+        password: String,
+        confirmPassword: String
+    ): Boolean {
         var isValid = true
         binding.tilName.error = null
         binding.tilEmail.error = null
@@ -58,31 +72,40 @@ class RegisterActivity : AppCompatActivity() {
         hideGeneralError()
 
         if (name.isEmpty()) {
-            binding.tilName.error = getString(R.string.error_required); isValid = false
+            binding.tilName.error = getString(R.string.error_required)
+            isValid = false
         } else if (name.length < 2) {
-            binding.tilName.error = "Name must be at least 2 characters"; isValid = false
+            binding.tilName.error = "Name must be at least 2 characters"
+            isValid = false
         }
 
         if (email.isEmpty()) {
-            binding.tilEmail.error = getString(R.string.error_required); isValid = false
+            binding.tilEmail.error = getString(R.string.error_required)
+            isValid = false
         } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            binding.tilEmail.error = getString(R.string.error_invalid_email); isValid = false
+            binding.tilEmail.error = getString(R.string.error_invalid_email)
+            isValid = false
         }
 
         if (password.isEmpty()) {
-            binding.tilPassword.error = getString(R.string.error_required); isValid = false
+            binding.tilPassword.error = getString(R.string.error_required)
+            isValid = false
         } else if (password.length < 8) {
-            binding.tilPassword.error = getString(R.string.error_password_length); isValid = false
+            binding.tilPassword.error = getString(R.string.error_password_length)
+            isValid = false
         }
 
         if (confirmPassword.isEmpty()) {
-            binding.tilConfirmPassword.error = getString(R.string.error_required); isValid = false
+            binding.tilConfirmPassword.error = getString(R.string.error_required)
+            isValid = false
         } else if (password != confirmPassword) {
-            binding.tilConfirmPassword.error = getString(R.string.error_password_mismatch); isValid = false
+            binding.tilConfirmPassword.error = getString(R.string.error_password_mismatch)
+            isValid = false
         }
 
         if (selectedBarangay.isEmpty()) {
-            binding.tilBarangay.error = getString(R.string.error_select_barangay); isValid = false
+            binding.tilBarangay.error = getString(R.string.error_select_barangay)
+            isValid = false
         }
 
         return isValid
@@ -101,7 +124,12 @@ class RegisterActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val response = ApiClient.service.register(
-                        RegisterRequest(name = name, email = email, password = password, barangay = selectedBarangay)
+                    RegisterRequest(
+                        name = name,
+                        email = email,
+                        password = password,
+                        barangay = selectedBarangay
+                    )
                 )
                 if (response.isSuccessful) {
                     val body = response.body()
@@ -138,7 +166,8 @@ class RegisterActivity : AppCompatActivity() {
 
     private fun setLoadingState(isLoading: Boolean) {
         binding.btnCreateAccount.isEnabled = !isLoading
-        binding.btnCreateAccount.text = if (isLoading) "Creating account…" else getString(R.string.btn_create_account)
+        binding.btnCreateAccount.text =
+            if (isLoading) "Creating account…" else getString(R.string.btn_create_account)
         binding.etName.isEnabled = !isLoading
         binding.etEmail.isEnabled = !isLoading
         binding.etPassword.isEnabled = !isLoading
@@ -146,13 +175,17 @@ class RegisterActivity : AppCompatActivity() {
         binding.actvBarangay.isEnabled = !isLoading
     }
 
+    /**
+     * Shows the styled error card (bg #FFF5F5, border #FFCDD2)
+     * matching the web app's errorMsg / apiError style.
+     */
     private fun showGeneralError(message: String) {
         binding.tvRegisterError.text = message
-        binding.tvRegisterError.visibility = View.VISIBLE
+        binding.cardRegisterError.visibility = View.VISIBLE
     }
 
     private fun hideGeneralError() {
-        binding.tvRegisterError.visibility = View.GONE
+        binding.cardRegisterError.visibility = View.GONE
     }
 
     private fun goToDashboard() {
