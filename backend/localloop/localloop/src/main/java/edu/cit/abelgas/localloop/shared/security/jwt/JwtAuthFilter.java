@@ -1,5 +1,6 @@
 package edu.cit.abelgas.localloop.shared.security.jwt;
 
+import edu.cit.abelgas.localloop.features.auth.User;
 import edu.cit.abelgas.localloop.features.auth.UserRepository;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -31,37 +33,33 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
-
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         String token = authHeader.substring(7);
-
         if (!jwtUtil.validateToken(token)) {
             filterChain.doFilter(request, response);
             return;
         }
 
         String email = jwtUtil.extractEmail(token);
+        String role  = jwtUtil.extractRole(token);
 
-        userRepository.findByEmail(email).ifPresent(user -> {
-            // ── Block deactivated users from authenticating ──────────────────
-            // If the user has been deactivated by an admin, their existing JWT
-            // is invalidated here — all protected endpoints will return 401.
-            if (!user.isActive()) {
-                return; // do NOT set SecurityContext → request treated as unauthenticated
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            User user = userRepository.findByEmail(email).orElse(null);
+
+            if (user != null && user.isActive()) {
+                List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                authorities.add(new SimpleGrantedAuthority(role));
+
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(user, null, authorities);
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
-
-            var authToken = new UsernamePasswordAuthenticationToken(
-                    user,
-                    null,
-                    List.of(new SimpleGrantedAuthority(user.getRole()))
-            );
-            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authToken);
-        });
+        }
 
         filterChain.doFilter(request, response);
     }
