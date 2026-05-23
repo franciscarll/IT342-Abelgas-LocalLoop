@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    activity_my_activity.xml
+    My Activity screen — matches web MyActivityPage layout:
+      • Top bar (LocalLoop logo + avatar)
+      • 4 stat cards (Reputation, Posted, Claimed, Completed)
+      • Tab row (Posted | Claimed | Completed) with count badges
+      • RecyclerView (favor cards)
+      • Summary card (As Requester + As Helper + Completion progress bar)
+      • Bottom nav
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_cream">
+
+    <!-- ── Top bar ──────────────────────────────────────────────────────── -->
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/card_white"
+        android:elevation="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="LocalLoop"
+            android:textColor="@color/primary"
+            android:textSize="20sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/tvAvatar"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/bg_avatar_circle"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <!-- ── Main scrollable content ──────────────────────────────────────── -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="56dp"
+        android:layout_marginBottom="56dp">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nestedScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="20dp">
+
+                <!-- ── Page title ──────────────────────────────────────── -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="My Activity"
+                    android:textColor="@color/text_primary"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="2dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Your posted, claimed, and completed favors."
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="16dp"/>
+
+                <!-- ── 4 stat cards (2×2 grid via nested LinearLayouts) ── -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <!-- Row 1: Reputation + Posted -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="4dp"
+                            app:cardCornerRadius="14dp"
+                            app:cardElevation="2dp"
+                            app:cardBackgroundColor="@color/card_white">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:padding="14dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="⭐"
+                                    android:textSize="18sp"
+                                    android:layout_marginBottom="6dp"/>
+
+                                <TextView
+                                    android:id="@+id/tvStatReputation"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="—"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="26sp"
+                                    android:textStyle="bold"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Reputation"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="11sp"/>
+                            </LinearLayout>
+                        </androidx.cardview.widget.CardView>
+
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            app:cardCornerRadius="14dp"
+                            app:cardElevation="2dp"
+                            app:cardBackgroundColor="@color/card_white">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:padding="14dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="📋"
+                                    android:textSize="18sp"
+                                    android:layout_marginBottom="6dp"/>
+
+                                <TextView
+                                    android:id="@+id/tvStatPosted"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="—"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="26sp"
+                                    android:textStyle="bold"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Posted"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="11sp"/>
+                            </LinearLayout>
+                        </androidx.cardview.widget.CardView>
+                    </LinearLayout>
+
+                    <!-- Row 2: Claimed + Completed -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="4dp"
+                            app:cardCornerRadius="14dp"
+                            app:cardElevation="2dp"
+                            app:cardBackgroundColor="@color/card_white">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:padding="14dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="🤝"
+                                    android:textSize="18sp"
+                                    android:layout_marginBottom="6dp"/>
+
+                                <TextView
+                                    android:id="@+id/tvStatClaimed"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="—"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="26sp"
+                                    android:textStyle="bold"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Claimed"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="11sp"/>
+                            </LinearLayout>
+                        </androidx.cardview.widget.CardView>
+
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            app:cardCornerRadius="14dp"
+                            app:cardElevation="2dp"
+                            app:cardBackgroundColor="@color/card_white">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:padding="14dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="✅"
+                                    android:textSize="18sp"
+                                    android:layout_marginBottom="6dp"/>
+
+                                <TextView
+                                    android:id="@+id/tvStatCompleted"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="—"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="26sp"
+                                    android:textStyle="bold"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Completed"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="11sp"/>
+                            </LinearLayout>
+                        </androidx.cardview.widget.CardView>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- ── Tab row ─────────────────────────────────────────── -->
+                <LinearLayout
+                    android:id="@+id/tabRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <!-- Posted tab -->
+                    <LinearLayout
+                        android:id="@+id/tabPosted"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:paddingVertical="10dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:id="@+id/tvTabPosted"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Posted"
+                            android:textSize="13sp"
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:id="@+id/tvTabPostedBadge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_category_tag"
+                            android:paddingHorizontal="7dp"
+                            android:paddingVertical="2dp"
+                            android:text="0"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:layout_marginStart="5dp"/>
+                    </LinearLayout>
+
+                    <!-- Claimed tab -->
+                    <LinearLayout
+                        android:id="@+id/tabClaimed"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:paddingVertical="10dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:id="@+id/tvTabClaimed"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Claimed"
+                            android:textSize="13sp"
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:id="@+id/tvTabClaimedBadge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_category_tag"
+                            android:paddingHorizontal="7dp"
+                            android:paddingVertical="2dp"
+                            android:text="0"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:layout_marginStart="5dp"/>
+                    </LinearLayout>
+
+                    <!-- Completed tab -->
+                    <LinearLayout
+                        android:id="@+id/tabCompleted"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:paddingVertical="10dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:id="@+id/tvTabCompleted"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Completed"
+                            android:textSize="13sp"
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:id="@+id/tvTabCompletedBadge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_category_tag"
+                            android:paddingHorizontal="7dp"
+                            android:paddingVertical="2dp"
+                            android:text="0"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:layout_marginStart="5dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Tab underline indicator -->
+                <View
+                    android:id="@+id/tabIndicator"
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/divider"
+                    android:layout_marginBottom="16dp"/>
+
+                <!-- ── Loading spinner ────────────────────────────────── -->
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/progressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:indeterminate="true"
+                    android:visibility="gone"
+                    app:indicatorColor="@color/primary"/>
+
+                <!-- ── Empty state ────────────────────────────────────── -->
+                <LinearLayout
+                    android:id="@+id/layoutEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingVertical="48dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📭"
+                        android:textSize="40sp"
+                        android:layout_marginBottom="12dp"/>
+
+                    <TextView
+                        android:id="@+id/tvEmptyMessage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Nothing here yet."
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp"
+                        android:gravity="center"/>
+                </LinearLayout>
+
+                <!-- ── Error state ────────────────────────────────────── -->
+                <TextView
+                    android:id="@+id/tvError"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_error_card"
+                    android:padding="12dp"
+                    android:textColor="@color/text_error"
+                    android:textSize="13sp"
+                    android:visibility="gone"
+                    android:layout_marginBottom="8dp"/>
+
+                <!-- ── Favor list RecyclerView ────────────────────────── -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvFavors"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:visibility="gone"/>
+
+                <!-- ══════════════════════════════════════════════════════
+                     SUMMARY CARD — mirrors web Activity Summary sidebar
+                     ══════════════════════════════════════════════════════ -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/summaryCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="@color/card_white">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="📊 Summary"
+                            android:textColor="@color/text_primary"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="12dp"/>
+
+                        <!-- As Requester label -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="AS REQUESTER"
+                            android:textColor="@color/text_hint"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.05"
+                            android:layout_marginBottom="4dp"/>
+
+                        <!-- Summary rows -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingVertical="9dp">
+                            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                                android:layout_weight="1" android:text="Open" android:textColor="@color/text_secondary" android:textSize="13sp"/>
+                            <TextView android:id="@+id/tvSummaryOpen" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="—" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold"/>
+                        </LinearLayout>
+                        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingVertical="9dp">
+                            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                                android:layout_weight="1" android:text="Claimed" android:textColor="@color/text_secondary" android:textSize="13sp"/>
+                            <TextView android:id="@+id/tvSummaryPostedClaimed" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="—" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold"/>
+                        </LinearLayout>
+                        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingVertical="9dp">
+                            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                                android:layout_weight="1" android:text="Completed" android:textColor="@color/text_secondary" android:textSize="13sp"/>
+                            <TextView android:id="@+id/tvSummaryPostedCompleted" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="—" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold"/>
+                        </LinearLayout>
+                        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingVertical="9dp">
+                            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                                android:layout_weight="1" android:text="Total Posted" android:textColor="@color/text_secondary" android:textSize="13sp"/>
+                            <TextView android:id="@+id/tvSummaryTotalPosted" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="—" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold"/>
+                        </LinearLayout>
+                        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider"/>
+
+                        <!-- As Helper label -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="AS HELPER"
+                            android:textColor="@color/text_hint"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.05"
+                            android:layout_marginTop="12dp"
+                            android:layout_marginBottom="4dp"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingVertical="9dp">
+                            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                                android:layout_weight="1" android:text="Reputation" android:textColor="@color/text_secondary" android:textSize="13sp"/>
+                            <TextView android:id="@+id/tvSummaryReputation" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="⭐ — pts" android:textColor="@color/primary" android:textSize="14sp" android:textStyle="bold"/>
+                        </LinearLayout>
+
+                        <!-- Completion Rate progress bar -->
+                        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" android:layout_marginBottom="12dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Completion Rate"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="8dp"/>
+
+                        <ProgressBar
+                            android:id="@+id/progressCompletion"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="8dp"
+                            android:max="100"
+                            android:progress="0"
+                            android:progressTint="@color/primary"
+                            android:progressBackgroundTint="@color/divider"
+                            android:layout_marginBottom="6dp"/>
+
+                        <TextView
+                            android:id="@+id/tvCompletionText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="No favors posted yet"
+                            android:textColor="@color/text_hint"
+                            android:textSize="12sp"/>
+
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <!-- ── Bottom navigation ────────────────────────────────────────────── -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_gravity="bottom"
+        android:background="@color/card_white"
+        android:elevation="8dp"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemIconTint="@color/bottom_nav_color"
+        app:itemTextColor="@color/bottom_nav_color"
+        app:labelVisibilityMode="labeled"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

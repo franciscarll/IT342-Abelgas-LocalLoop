@@ -26,6 +26,7 @@ import edu.cit.abelgas.localloop.features.favorfeed.FavorFeedConstants.CATEGORIE
 import edu.cit.abelgas.localloop.features.favorfeed.adapter.CategoryChipAdapter
 import edu.cit.abelgas.localloop.features.favorfeed.adapter.FavorCardAdapter
 import edu.cit.abelgas.localloop.features.favorfeed.model.FeedUiState
+import edu.cit.abelgas.localloop.features.myactivity.MyActivityActivity
 import edu.cit.abelgas.localloop.features.postfavor.PostFavorActivity
 import edu.cit.abelgas.localloop.shared.util.SharedPreferencesHelper
 
@@ -217,7 +218,11 @@ class FavorFeedActivity : AppCompatActivity() {
                     overridePendingTransition(0, 0)
                     false
                 }
-                R.id.nav_activity -> { true }
+                R.id.nav_activity -> {
+                    startActivity(Intent(this, MyActivityActivity::class.java))
+                    overridePendingTransition(0, 0)
+                    false
+                }
                 R.id.nav_profile  -> { true }
                 else -> false
             }

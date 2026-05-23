@@ -17,6 +17,7 @@
     import edu.cit.abelgas.localloop.features.dashboard.adapter.FavorAdapter
     import edu.cit.abelgas.localloop.features.favordetail.FavorDetailActivity
     import edu.cit.abelgas.localloop.features.favorfeed.FavorFeedActivity
+    import edu.cit.abelgas.localloop.features.myactivity.MyActivityActivity
     import edu.cit.abelgas.localloop.features.postfavor.PostFavorActivity
     import edu.cit.abelgas.localloop.shared.util.SharedPreferencesHelper
     import edu.cit.abelgas.localloop.shared.util.WeatherUtils
@@ -109,7 +110,11 @@
                         overridePendingTransition(0, 0)
                         false
                     }
-                    R.id.nav_activity -> { /* TODO */ true }
+                    R.id.nav_activity -> {
+                        startActivity(Intent(this, MyActivityActivity::class.java))
+                        overridePendingTransition(0, 0)
+                        false
+                    }
                     R.id.nav_profile  -> { /* TODO */ true }
                     else -> false
                 }

@@ -51,6 +51,10 @@
             android:windowSoftInputMode="adjustResize"
             android:exported="false"/>
 
+        <activity
+                    android:name=".features.myactivity.MyActivityActivity"
+                    android:exported="false" />
+
     </application>
 
 </manifest>

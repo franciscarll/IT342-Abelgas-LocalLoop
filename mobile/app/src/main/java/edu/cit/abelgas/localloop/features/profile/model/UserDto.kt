@@ -7,5 +7,6 @@ data class UserDto(
     val barangay: String,
     val role: String,
     val reputationScore: Int,
-    val profileImageUrl: String?
+    val profileImageUrl: String?,
+    val hasPassword: Boolean = true
 )

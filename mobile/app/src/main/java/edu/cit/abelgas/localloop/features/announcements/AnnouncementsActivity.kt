@@ -23,6 +23,7 @@ import edu.cit.abelgas.localloop.features.announcements.model.AnnouncementUiStat
 import edu.cit.abelgas.localloop.features.dashboard.DashboardActivity
 import edu.cit.abelgas.localloop.features.dashboard.model.AnnouncementDto
 import edu.cit.abelgas.localloop.features.favorfeed.FavorFeedActivity
+import edu.cit.abelgas.localloop.features.myactivity.MyActivityActivity
 import edu.cit.abelgas.localloop.shared.util.SharedPreferencesHelper
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -120,7 +121,11 @@ class AnnouncementsActivity : AppCompatActivity() {
                     false
                 }
                 R.id.nav_announce -> true
-                R.id.nav_activity -> true
+                R.id.nav_activity -> {
+                    startActivity(Intent(this, MyActivityActivity::class.java))
+                    overridePendingTransition(0, 0)
+                    false
+                }
                 R.id.nav_profile  -> true
                 else -> false
             }

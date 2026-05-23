@@ -14,9 +14,11 @@ import edu.cit.abelgas.localloop.features.profile.model.UserDto
 import edu.cit.abelgas.localloop.shared.model.ApiResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -124,4 +126,61 @@ interface ApiService {
     suspend fun postFavor(
         @Body request: edu.cit.abelgas.localloop.features.postfavor.model.CreateFavorRequest
     ): Response<ApiResponse<FavorDetailDto>>
+
+    // =========================================================================
+    // MY ACTIVITY — GET /api/favors/my-posted
+    // Returns all favors the current user posted (all statuses)
+    // =========================================================================
+    @GET("favors/my-posted")
+    suspend fun getMyPostedFavors(
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 50
+    ): Response<ApiResponse<PagedResponse<edu.cit.abelgas.localloop.features.myactivity.model.ActivityFavorDto>>>
+
+    // =========================================================================
+    // MY ACTIVITY — GET /api/favors/my-claimed
+    // Returns CLAIMED + COMPLETED favors where user is the claimer
+    // =========================================================================
+    @GET("favors/my-claimed")
+    suspend fun getMyClaimedFavors(
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 50
+    ): Response<ApiResponse<PagedResponse<edu.cit.abelgas.localloop.features.myactivity.model.ActivityFavorDto>>>
+
+    // =========================================================================
+    // MY ACTIVITY — DELETE /api/favors/{id}
+    // Only OPEN favors. Only the requester.
+    // =========================================================================
+    @DELETE("favors/{id}")
+    suspend fun deleteFavor(
+        @Path("id") favorId: Long
+    ): Response<ApiResponse<Unit>>
+
+    // =========================================================================
+    // MY ACTIVITY — PUT /api/favors/{id}/complete
+    // Only the requester. Only CLAIMED favors. Awards +1 rep to claimer.
+    // =========================================================================
+    @PUT("favors/{id}/complete")
+    suspend fun completeFavor(
+        @Path("id") favorId: Long
+    ): Response<ApiResponse<edu.cit.abelgas.localloop.features.myactivity.model.ActivityFavorDto>>
+
+    // =========================================================================
+    // MY ACTIVITY — PUT /api/favors/{id}/reopen
+    // Only the requester. Only CLAIMED favors. Deducts -2 rep from claimer.
+    // =========================================================================
+    @PUT("favors/{id}/reopen")
+    suspend fun reopenFavor(
+        @Path("id") favorId: Long
+    ): Response<ApiResponse<edu.cit.abelgas.localloop.features.myactivity.model.ActivityFavorDto>>
+
+    // =========================================================================
+    // MY ACTIVITY — PUT /api/favors/{id}/cancel-claim
+    // Only the claimer. Only CLAIMED favors. Deducts -1 rep from claimer.
+    // =========================================================================
+    @PUT("favors/{id}/cancel-claim")
+    suspend fun cancelClaim(
+        @Path("id") favorId: Long
+    ): Response<ApiResponse<edu.cit.abelgas.localloop.features.myactivity.model.ActivityFavorDto>>
+
 }
