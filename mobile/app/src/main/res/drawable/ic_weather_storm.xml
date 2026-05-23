@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ic_weather_storm.xml — dark cloud + yellow lightning bolt -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="72dp"
+    android:height="72dp"
+    android:viewportWidth="72"
+    android:viewportHeight="72">
+
+    <!-- Dark storm cloud -->
+    <path
+        android:fillColor="#607D8B"
+        android:pathData="M58,34 Q58,42 50,42 L22,42 Q14,42 14,34 Q14,28 20,26 Q20,16 30,16 Q38,16 40,22 Q46,18 52,22 Q60,24 58,34Z"/>
+    <path
+        android:fillColor="#78909C"
+        android:pathData="M22,42 Q14,42 14,34 Q14,28 20,26 Q22,34 28,38 Q22,38 22,42Z"/>
+
+    <!-- Lightning bolt -->
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M36,44 L30,56 L36,54 L32,66 L44,50 L38,52 Z"/>
+</vector>

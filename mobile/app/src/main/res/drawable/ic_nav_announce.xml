@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Megaphone body -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M3,11v2a1,1 0,0 0,1 1h1l2,4h2l-1,-4h1a1,1 0,0 0,1 -1v-2"
+        android:strokeColor="#888888"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"/>
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M9,8V7a1,1 0,0 1,1 -1l9,-2v12l-9,-2a1,1 0,0 1,-1 -1V8Z"
+        android:strokeColor="#888888"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"/>
+    <!-- Sound waves -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M20,7.5c0.8,0.5 1,1.5 1,2.5s-0.2,2,-1 2.5"
+        android:strokeColor="#888888"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"/>
+</vector>

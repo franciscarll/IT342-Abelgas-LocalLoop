@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Matches web WeatherIcon sunny/clear branch:
+    circle cx=36 cy=36 r=16, fill #FFC107
+    8 rays at 0,45,90,135,180,225,270,315°
+    Scaled to 72×56 viewBox to match web output size
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="72dp"
+    android:height="56dp"
+    android:viewportWidth="72"
+    android:viewportHeight="56">
+
+    <!-- Sun disc -->
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M28,28m-14,0a14,14 0,1 1,28 0a14,14 0,1 1,-28 0"/>
+
+    <!-- Ray N -->
+    <path android:strokeColor="#FFC107" android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M28,8 L28,3"/>
+    <!-- Ray NE -->
+    <path android:strokeColor="#FFC107" android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M41.6,14.4 L45.1,10.9"/>
+    <!-- Ray E -->
+    <path android:strokeColor="#FFC107" android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M48,28 L53,28"/>
+    <!-- Ray SE -->
+    <path android:strokeColor="#FFC107" android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M41.6,41.6 L45.1,45.1"/>
+    <!-- Ray S -->
+    <path android:strokeColor="#FFC107" android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M28,48 L28,53"/>
+    <!-- Ray SW -->
+    <path android:strokeColor="#FFC107" android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M14.4,41.6 L10.9,45.1"/>
+    <!-- Ray W -->
+    <path android:strokeColor="#FFC107" android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M8,28 L3,28"/>
+    <!-- Ray NW -->
+    <path android:strokeColor="#FFC107" android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M14.4,14.4 L10.9,10.9"/>
+</vector>

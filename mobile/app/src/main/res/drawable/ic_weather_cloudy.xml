@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ic_weather_cloudy.xml — full overcast cloud, no sun -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="72dp"
+    android:height="56dp"
+    android:viewportWidth="72"
+    android:viewportHeight="56">
+
+    <path
+        android:fillColor="#90A4AE"
+        android:pathData="M58,38 Q58,46 50,46 L22,46 Q14,46 14,38 Q14,32 20,30 Q20,20 30,20 Q38,20 40,26 Q46,22 52,26 Q60,28 58,38Z"/>
+    <path
+        android:fillColor="#B0BEC5"
+        android:pathData="M22,46 Q14,46 14,38 Q14,32 20,30 Q21,36 26,40 Q22,40 22,46Z"/>
+</vector>

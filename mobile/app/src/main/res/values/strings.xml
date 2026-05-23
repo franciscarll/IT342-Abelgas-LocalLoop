@@ -41,6 +41,8 @@
     <string name="error_duplicate_email">This email is already registered.</string>
     <string name="error_no_internet">No internet connection. Please check your network.</string>
 
+    <string name="date_placeholder">Select a date (optional)</string>
+
     <string-array name="cebu_city_barangays">
         <item>Select your barangay</item>
         <item>Adlaon</item>

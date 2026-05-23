@@ -22,6 +22,7 @@
         <item name="android:navigationBarColor">@color/background_cream</item>
         <!-- Ensure Material text fields pick up focus color from colorPrimary -->
         <item name="colorControlActivated">@color/primary</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
     </style>
 
     <!-- ── Primary orange button ────────────────────────────────────── -->

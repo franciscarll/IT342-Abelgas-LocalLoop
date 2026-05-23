@@ -20,8 +20,8 @@ android {
         release {
             isMinifyEnabled = false
             proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
             )
         }
     }
@@ -36,11 +36,12 @@ android {
     }
 
     buildFeatures {
-        viewBinding = true   // ← switched from compose to viewBinding
+        viewBinding = true
     }
 }
 
 dependencies {
+    // ── Your existing dependencies (unchanged) ─────────────────────────────
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.appcompat)
@@ -59,6 +60,23 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
+    // ── NEW: needed for Dashboard screen ───────────────────────────────────
+    // RecyclerView — favors list, category chips, announcements list
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+
+    // CardView — white rounded cards on the dashboard
+    implementation("androidx.cardview:cardview:1.0.0")
+
+    // CoordinatorLayout — root layout of activity_dashboard.xml
+    implementation("androidx.coordinatorlayout:coordinatorlayout:1.2.0")
+
+    // LiveData — used in DashboardViewModel
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
+
+    // Gson — for SharedPreferencesHelper saving/reading UserDto as JSON
+    implementation("com.google.code.gson:gson:2.10.1")
+
+    // ── Testing (unchanged) ────────────────────────────────────────────────
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

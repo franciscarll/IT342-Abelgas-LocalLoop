@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import edu.cit.abelgas.localloop.features.auth.LoginActivity
 import edu.cit.abelgas.localloop.features.dashboard.DashboardActivity
+import edu.cit.abelgas.localloop.shared.api.ApiClient
 import edu.cit.abelgas.localloop.shared.util.SharedPreferencesHelper
 
 class MainActivity : AppCompatActivity() {
@@ -16,6 +17,7 @@ class MainActivity : AppCompatActivity() {
         // It checks if the user is already logged in and
         // redirects them to the right screen immediately.
         val prefs = SharedPreferencesHelper(this)
+        ApiClient.init(prefs)
 
         if (prefs.isLoggedIn()) {
             startActivity(Intent(this, DashboardActivity::class.java))

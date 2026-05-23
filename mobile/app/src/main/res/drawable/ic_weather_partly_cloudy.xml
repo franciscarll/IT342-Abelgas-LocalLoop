@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Matches web WeatherIcon default (partly cloudy) branch:
+    Sun top-left + large grey cloud overlapping bottom-right.
+    viewBox 80×60 matching web SVG output.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="80dp"
+    android:height="60dp"
+    android:viewportWidth="80"
+    android:viewportHeight="60">
+
+    <!-- Sun disc behind cloud -->
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M34,24m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0"/>
+
+    <!-- Sun rays (6 rays at 60° intervals) -->
+    <path android:strokeColor="#FFC107" android:strokeWidth="2.5"
+        android:strokeLineCap="round" android:pathData="M34,8 L34,4"/>
+    <path android:strokeColor="#FFC107" android:strokeWidth="2.5"
+        android:strokeLineCap="round" android:pathData="M46.4,16 L49.5,13"/>
+    <path android:strokeColor="#FFC107" android:strokeWidth="2.5"
+        android:strokeLineCap="round" android:pathData="M46.4,32 L49.5,35"/>
+    <path android:strokeColor="#FFC107" android:strokeWidth="2.5"
+        android:strokeLineCap="round" android:pathData="M34,40 L34,44"/>
+    <path android:strokeColor="#FFC107" android:strokeWidth="2.5"
+        android:strokeLineCap="round" android:pathData="M21.6,32 L18.5,35"/>
+    <path android:strokeColor="#FFC107" android:strokeWidth="2.5"
+        android:strokeLineCap="round" android:pathData="M21.6,16 L18.5,13"/>
+
+    <!-- Main cloud body -->
+    <path
+        android:fillColor="#90A4AE"
+        android:pathData="M64,40 Q64,50 54,50 L26,50 Q16,50 16,42 Q16,35 24,34 Q24,26 34,26 Q42,26 44,32 Q50,28 56,32 Q64,33 64,40Z"/>
+
+    <!-- Cloud highlight (lighter front) -->
+    <path
+        android:fillColor="#B0BEC5"
+        android:pathData="M20,44 Q16,44 16,42 Q16,35 24,34 Q25,38 28,40 Q22,40 20,44Z"/>
+</vector>

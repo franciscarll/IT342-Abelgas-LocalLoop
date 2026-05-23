@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Shopping cart — grocery help -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#C8601A"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M1,1 L3,1 L5.68,14.39 C5.77,14.8 6.13,15.1 6.55,15.1 L19.1,15.1 C19.52,15.1 19.88,14.8 19.97,14.39 L21.7,6.1 L4.42,6.1"/>
+    <!-- Wheels -->
+    <path
+        android:fillColor="#C8601A"
+        android:pathData="M9,19 C9,20.1 8.1,21 7,21 C5.9,21 5,20.1 5,19 C5,17.9 5.9,17 7,17 C8.1,17 9,17.9 9,19 Z"/>
+    <path
+        android:fillColor="#C8601A"
+        android:pathData="M20,19 C20,20.1 19.1,21 18,21 C16.9,21 16,20.1 16,19 C16,17.9 16.9,17 18,17 C19.1,17 20,17.9 20,19 Z"/>
+</vector>

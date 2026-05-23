@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Matches web WeatherIcon rain/drizzle branch:
+    Grey cloud + 3 blue rain lines angled bottom-left.
+    viewBox 72×72.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="72dp"
+    android:height="72dp"
+    android:viewportWidth="72"
+    android:viewportHeight="72">
+
+    <!-- Main cloud -->
+    <path
+        android:fillColor="#90A4AE"
+        android:pathData="M18,28 Q18,16 28,16 Q32,16 35,19 Q38,14 44,14 Q54,14 54,24 Q60,24 60,32 Q60,40 52,40 L20,40 Q12,40 12,32 Q12,26 18,28Z"/>
+
+    <!-- Cloud highlights -->
+    <path
+        android:fillColor="#B0BEC5"
+        android:pathData="M52,40 Q60,40 60,32 Q60,28 56,26 Q58,36 52,40Z"/>
+
+    <!-- Rain drop 1 -->
+    <path
+        android:strokeColor="#42A5F5"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M24,48 L20,58"/>
+    <!-- Rain drop 2 -->
+    <path
+        android:strokeColor="#42A5F5"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M36,48 L32,58"/>
+    <!-- Rain drop 3 -->
+    <path
+        android:strokeColor="#42A5F5"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M48,48 L44,58"/>
+</vector>

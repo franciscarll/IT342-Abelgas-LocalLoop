@@ -14,15 +14,7 @@ import edu.cit.abelgas.localloop.shared.util.SharedPreferencesHelper
 import kotlinx.coroutines.launch
 import java.io.IOException
 
-/**
- * LoginActivity — REFINED (visual only, logic unchanged)
- *
- * Changes:
- *  • showGeneralError / hideGeneralError now toggle the cardLoginError
- *    container (white-red card matching web) instead of plain TextView.
- *  • tvLoginError is still the text inside that card — binding IDs unchanged.
- *  • All auth logic, navigation, and validation identical to original.
- */
+
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
@@ -32,7 +24,13 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         prefs = SharedPreferencesHelper(this)
+
+        // ── CRITICAL FIX: init ApiClient BEFORE isLoggedIn() check ───────────
+        // Without this, the auth interceptor has no prefs reference and never
+        // attaches the Bearer token to any request — causing 401 on everything.
+        ApiClient.init(prefs)
 
         if (prefs.isLoggedIn()) {
             goToDashboard()
@@ -96,7 +94,21 @@ class LoginActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body?.success == true && body.data != null) {
-                        prefs.saveAuthData(body.data.accessToken, body.data.user)
+
+                        // ── CRITICAL FIX: save token and user separately ──────
+                        // body.data is AuthData, not UserDto.
+                        // We save the token directly, and save the user fields
+                        // that AuthData exposes. This way getToken() works
+                        // immediately on the next request in DashboardActivity.
+                        val authData = body.data
+
+                        // Save token so interceptor can attach it immediately
+                        prefs.saveToken(authData.accessToken)
+
+                        // Save user — AuthData.user is already a UserDto
+                        // (share your AuthData model if this still causes an error)
+                        prefs.saveUser(authData.user)
+
                         goToDashboard()
                     } else {
                         showGeneralError(body?.error?.message ?: getString(R.string.error_generic))
@@ -130,10 +142,6 @@ class LoginActivity : AppCompatActivity() {
         binding.etPassword.isEnabled = !isLoading
     }
 
-    /**
-     * Shows the styled error card (bg #FFF5F5, border #FFCDD2)
-     * matching the web app's errorMsg style.
-     */
     private fun showGeneralError(message: String) {
         binding.tvLoginError.text = message
         binding.cardLoginError.visibility = View.VISIBLE

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ic_category_plant.xml — plant/leaf matching web Plant Watering SVG -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="22dp"
+    android:height="22dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Stem -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M12,22V12"
+        android:strokeColor="#C8601A"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"/>
+    <!-- Left leaf -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M12,12 C12,12 7,10 5,6 C9,6 12,8 12,12Z"
+        android:strokeColor="#C8601A"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"/>
+    <!-- Right leaf -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M12,12 C12,12 17,10 19,6 C15,6 12,8 12,12Z"
+        android:strokeColor="#C8601A"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"/>
+</vector>

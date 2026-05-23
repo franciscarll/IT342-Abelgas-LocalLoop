@@ -31,6 +31,21 @@
             android:name=".features.dashboard.DashboardActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".features.favorfeed.FavorFeedActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".features.favordetail.FavorDetailActivity"
+            android:exported="false"
+            android:parentActivityName=".features.favorfeed.FavorFeedActivity" />
+
+        <activity
+            android:name=".features.postfavor.PostFavorActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait"/>
+
     </application>
 
 </manifest>
