@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import edu.cit.abelgas.localloop.R
 import edu.cit.abelgas.localloop.databinding.ActivityFavorFeedBinding
+import edu.cit.abelgas.localloop.features.announcements.AnnouncementsActivity
 import edu.cit.abelgas.localloop.features.auth.LoginActivity
 import edu.cit.abelgas.localloop.features.dashboard.DashboardActivity
 import edu.cit.abelgas.localloop.features.favordetail.FavorDetailActivity
@@ -211,7 +212,11 @@ class FavorFeedActivity : AppCompatActivity() {
                     false
                 }
                 R.id.nav_feed     -> true
-                R.id.nav_announce -> { true }
+                R.id.nav_announce -> {
+                    startActivity(Intent(this, AnnouncementsActivity::class.java))
+                    overridePendingTransition(0, 0)
+                    false
+                }
                 R.id.nav_activity -> { true }
                 R.id.nav_profile  -> { true }
                 else -> false

@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    fragment_announcement_detail.xml
+    Bottom sheet detail view for a single announcement.
+
+    Visual hierarchy (top → bottom):
+      1. Drag handle
+      2. Close button (top-right)
+      3. Date chip + Category badge  (same row as item card)
+      4. Pinned badge row            (GONE when not pinned)
+      5. Title                       (bold, large)
+      6. Divider
+      7. Author bar                  (avatar bubble + "Posted by …")
+      8. Divider
+      9. Body text                   (scrollable via NestedScrollView)
+
+    Root is a plain FrameLayout — the BottomSheetDialogFragment dialog
+    window provides the sheet container, dim, and corner radius via the
+    Theme_LocalLoop_BottomSheet style.
+-->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/card_white">
+
+    <!-- ── Close button — absolute top-right ──────────────────────────── -->
+    <ImageButton
+        android:id="@+id/btnClose"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="top|end"
+        android:layout_margin="12dp"
+        android:background="@drawable/bg_close_circle"
+        android:contentDescription="Close"
+        android:src="@drawable/ic_close"
+        app:tint="@color/text_secondary"/>
+
+    <!-- ── Main content column ────────────────────────────────────────── -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- 1. Drag handle -->
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="4dp"
+            android:background="@drawable/bg_drag_handle"
+            android:layout_marginHorizontal="0dp"/>
+
+        <!-- Small spacer so close button doesn't overlap date row -->
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="8dp"/>
+
+        <!-- ── Scrollable inner content ─────────────────────────────── -->
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="32dp"
+            android:clipToPadding="false">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="4dp">
+
+                <!-- 2. Date only — top left -->
+                <TextView
+                    android:id="@+id/tvDetailDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Feb 22, 2026"
+                    android:textColor="@color/text_hint"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="8dp"/>
+
+                <!-- 3. Pinned badge — GONE unless isPinned == true -->
+                <LinearLayout
+                    android:id="@+id/layoutPinnedBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_pinned_badge"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
+                    android:layout_marginBottom="8dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📌"
+                        android:textSize="12sp"
+                        android:layout_marginEnd="4dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pinned"
+                        android:textColor="@color/primary"
+                        android:textSize="11sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <!-- 4. Title + Category badge on same row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="top"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:id="@+id/tvDetailTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Announcement title"
+                        android:textColor="@color/text_primary"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:lineSpacingMultiplier="1.25"
+                        android:paddingEnd="8dp"/>
+
+                    <!-- Category badge — aligned to top of title -->
+                    <TextView
+                        android:id="@+id/tvDetailCategory"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="0.5dp"
+                        android:background="@drawable/bg_category_tag"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="3dp"
+                        android:text="Event"
+                        android:textSize="11sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <!-- 5. Divider -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider"
+                    android:layout_marginBottom="12dp"/>
+
+                <!-- 6. Author bar — avatar bubble + name -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <!-- Avatar bubble — same style as item card admin bubble -->
+                    <TextView
+                        android:id="@+id/tvDetailAuthorInitial"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_avatar_circle"
+                        android:backgroundTint="@color/primary"
+                        android:gravity="center"
+                        android:text="A"
+                        android:textColor="#FFFFFF"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:layout_marginEnd="10dp"/>
+
+                    <TextView
+                        android:id="@+id/tvDetailAuthor"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Posted by Admin"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"/>
+                </LinearLayout>
+
+                <!-- 7. Divider -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider"
+                    android:layout_marginBottom="16dp"/>
+
+                <!-- 8. Full body text — no maxLines limit -->
+                <TextView
+                    android:id="@+id/tvDetailBody"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Body content here."
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:lineSpacingMultiplier="1.6"
+                    android:layout_marginBottom="8dp"/>
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+    </LinearLayout>
+
+</FrameLayout>

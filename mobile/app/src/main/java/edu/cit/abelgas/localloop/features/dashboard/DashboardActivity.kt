@@ -10,6 +10,7 @@
     import com.google.android.material.snackbar.Snackbar
     import edu.cit.abelgas.localloop.R
     import edu.cit.abelgas.localloop.databinding.ActivityDashboardBinding
+    import edu.cit.abelgas.localloop.features.announcements.AnnouncementsActivity
     import edu.cit.abelgas.localloop.features.auth.LoginActivity
     import edu.cit.abelgas.localloop.features.dashboard.adapter.AnnouncementAdapter
     import edu.cit.abelgas.localloop.features.dashboard.adapter.CategoryChipAdapter
@@ -103,7 +104,11 @@
                         overridePendingTransition(0, 0)
                         false
                     }
-                    R.id.nav_announce -> { /* TODO */ true }
+                    R.id.nav_announce -> {
+                        startActivity(Intent(this, AnnouncementsActivity::class.java))
+                        overridePendingTransition(0, 0)
+                        false
+                    }
                     R.id.nav_activity -> { /* TODO */ true }
                     R.id.nav_profile  -> { /* TODO */ true }
                     else -> false
@@ -164,7 +169,8 @@
                 isNestedScrollingEnabled = false
             }
             binding.tvViewAllAnnouncements.setOnClickListener {
-                // TODO: navigate to AnnouncementsActivity
+                startActivity(Intent(this, AnnouncementsActivity::class.java))
+                overridePendingTransition(0, 0)
             }
             binding.tvViewAllFavors.setOnClickListener {
                 startActivity(Intent(this, FavorFeedActivity::class.java))

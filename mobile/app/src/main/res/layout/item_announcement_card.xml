@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    item_announcement_card.xml
+    Matches design reference: date (left) + category badge (right),
+    title, 3-line snippet, author row + Read more link.
+    Card style mirrors FavorFeed item cards.
+-->
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/card_white"
+    android:layout_marginBottom="10dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Row 1: Date + Category badge -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Feb 22, 2026"
+                android:textColor="@color/text_hint"
+                android:textSize="11sp"/>
+
+            <!-- Category badge pill -->
+            <TextView
+                android:id="@+id/tvCategory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_category_tag"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="3dp"
+                android:text="Event"
+                android:textSize="11sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Announcement title here"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:lineSpacingMultiplier="1.2"
+            android:layout_marginBottom="6dp"/>
+
+        <!-- Snippet -->
+        <TextView
+            android:id="@+id/tvSnippet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Description snippet goes here..."
+            android:textColor="#666666"
+            android:textSize="13sp"
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:lineSpacingMultiplier="1.4"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider"
+            android:layout_marginBottom="10dp"/>
+
+        <!-- Author + Read more row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Admin avatar bubble -->
+            <TextView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:background="@drawable/bg_avatar_circle"
+                android:backgroundTint="@color/primary"
+                android:gravity="center"
+                android:text="A"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="8dp"/>
+
+            <TextView
+                android:id="@+id/tvAuthor"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Posted by Admin"
+                android:textColor="@color/text_hint"
+                android:textSize="12sp"/>
+
+            <TextView
+                android:id="@+id/btnReadMore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Read more →"
+                android:textColor="@color/primary"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

@@ -123,4 +123,59 @@
         <item name="android:gravity">center</item>
     </style>
 
+    <!--
+        Theme_LocalLoop_BottomSheet
+        ─────────────────────────────────────────────────────────────────────
+        Applied via AnnouncementDetailBottomSheet.getTheme().
+        Key settings:
+          • bottomSheetStyle → round top corners (20dp), white background
+          • backgroundDimEnabled → true (dim the screen behind the sheet)
+          • backgroundDimAmount → 0.5 (50% dim — matches Material default)
+          • windowAnimationStyle → slide-up enter, slide-down exit
+        ─────────────────────────────────────────────────────────────────────
+    -->
+    <style name="Theme_LocalLoop_BottomSheet"
+        parent="Theme.MaterialComponents.Light.BottomSheetDialog">
+
+        <!-- Sheet itself: rounded top corners, white -->
+        <item name="bottomSheetStyle">@style/Widget.LocalLoop.BottomSheet</item>
+
+        <!-- Dim the activity behind it -->
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.5</item>
+
+        <!-- Slide-up / slide-down window animation -->
+        <item name="android:windowAnimationStyle">@style/Animation.LocalLoop.BottomSheet</item>
+    </style>
+
+    <!--
+        Bottom sheet container shape
+        20dp top corners only — matches Material bottom sheet spec.
+    -->
+    <style name="Widget.LocalLoop.BottomSheet"
+        parent="Widget.MaterialComponents.BottomSheet">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.LocalLoop.BottomSheet</item>
+        <item name="android:background">@color/card_white</item>
+    </style>
+
+    <!-- Top-rounded shape (20dp top, 0dp bottom) -->
+    <style name="ShapeAppearance.LocalLoop.BottomSheet"
+        parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">20dp</item>
+        <item name="cornerSizeTopRight">20dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <!--
+        Window-level animation pairing.
+        References anim/bs_slide_up.xml and anim/bs_slide_down.xml (see below).
+    -->
+    <style name="Animation.LocalLoop.BottomSheet"
+        parent="Animation.AppCompat.Dialog">
+        <item name="android:windowEnterAnimation">@anim/bs_slide_up</item>
+        <item name="android:windowExitAnimation">@anim/bs_slide_down</item>
+    </style>
+
 </resources>

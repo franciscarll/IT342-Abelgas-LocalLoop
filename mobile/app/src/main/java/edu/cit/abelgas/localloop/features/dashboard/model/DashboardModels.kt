@@ -107,6 +107,9 @@ data class AnnouncementDto(
     val id: Long = 0,
     val title: String = "",
     val content: String? = null,
+    val category: String? = null,
+    @SerializedName("isPinned", alternate = ["pinned"])
+    val isPinned: Boolean = false,
     val createdAt: String? = null,
     val date: String? = null,          // fallback key the web also checks
     val postedBy: String? = null
