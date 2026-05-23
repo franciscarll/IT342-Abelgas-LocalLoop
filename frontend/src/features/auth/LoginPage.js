@@ -82,7 +82,6 @@ const LoginPage = () => {
               <div style={styles.fieldGroup}>
                 <div style={styles.passwordLabelRow}>
                   <label style={styles.label}>Password</label>
-                  <span style={styles.forgotLink}>Forgot password?</span>
                 </div>
                 <div style={styles.inputWrapper}>
                   <span style={styles.inputIcon}>

@@ -37,7 +37,7 @@ const OAuth2CallbackPage = () => {
     } else {
       window.location.href = '/login';
     }
-  }, [login, searchParams]);
+  }, []);
 
   return null;
 };
