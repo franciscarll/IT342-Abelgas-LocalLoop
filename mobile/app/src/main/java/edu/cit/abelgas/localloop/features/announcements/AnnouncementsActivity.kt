@@ -24,7 +24,10 @@ import edu.cit.abelgas.localloop.features.dashboard.DashboardActivity
 import edu.cit.abelgas.localloop.features.dashboard.model.AnnouncementDto
 import edu.cit.abelgas.localloop.features.favorfeed.FavorFeedActivity
 import edu.cit.abelgas.localloop.features.myactivity.MyActivityActivity
+import edu.cit.abelgas.localloop.features.profile.ProfileActivity
+import edu.cit.abelgas.localloop.shared.util.BadgeManager
 import edu.cit.abelgas.localloop.shared.util.SharedPreferencesHelper
+import edu.cit.abelgas.localloop.shared.util.applyActivityBadge
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -62,6 +65,7 @@ class AnnouncementsActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        BadgeManager.refresh()
         binding.bottomNav.selectedItemId = R.id.nav_announce
     }
 
@@ -126,9 +130,16 @@ class AnnouncementsActivity : AppCompatActivity() {
                     overridePendingTransition(0, 0)
                     false
                 }
-                R.id.nav_profile  -> true
+                R.id.nav_profile -> {
+                    startActivity(Intent(this, ProfileActivity::class.java))
+                    overridePendingTransition(0, 0)
+                    false
+                }
                 else -> false
             }
+        }
+        BadgeManager.badgeCount.observe(this) { count ->
+            binding.bottomNav.applyActivityBadge(count)
         }
     }
 
@@ -179,13 +190,11 @@ class AnnouncementsActivity : AppCompatActivity() {
     private fun bindPinnedCard(ann: AnnouncementDto) {
         binding.tvPinnedTitle.text   = ann.title
         binding.tvPinnedDate.text    = formatDate(ann.resolvedDate)
-        // FIX 3 & 4: content is nullable — use ?: "" before calling .take() and .length
         val body = ann.content ?: ""
         binding.tvPinnedSnippet.text = if (body.length > 80) body.take(80) + "…" else body
         binding.btnPinnedReadMore.setOnClickListener {
             AnnouncementDetailBottomSheet.show(supportFragmentManager, ann)
         }
-        // Also make the whole pinned card tappable (optional but recommended):
         binding.pinnedCard.setOnClickListener {
             AnnouncementDetailBottomSheet.show(supportFragmentManager, ann)
         }

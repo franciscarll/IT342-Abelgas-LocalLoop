@@ -28,10 +28,10 @@ import edu.cit.abelgas.localloop.features.favorfeed.adapter.FavorCardAdapter
 import edu.cit.abelgas.localloop.features.favorfeed.model.FeedUiState
 import edu.cit.abelgas.localloop.features.myactivity.MyActivityActivity
 import edu.cit.abelgas.localloop.features.postfavor.PostFavorActivity
+import edu.cit.abelgas.localloop.features.profile.ProfileActivity
+import edu.cit.abelgas.localloop.shared.util.BadgeManager
 import edu.cit.abelgas.localloop.shared.util.SharedPreferencesHelper
-
-// ✅ Removed: OkHttpClient, Retrofit, GsonConverterFactory, TimeUnit imports
-//    — no longer needed since we use ApiClient.service via the ViewModel directly
+import edu.cit.abelgas.localloop.shared.util.applyActivityBadge
 
 class FavorFeedActivity : AppCompatActivity() {
 
@@ -52,10 +52,6 @@ class FavorFeedActivity : AppCompatActivity() {
         val user      = prefs.getUser()
         currentUserId = user?.id
 
-        // ✅ Removed: entire OkHttpClient + Retrofit builder block (was ~20 lines)
-        // ✅ Removed: viewModel.apiService = retrofit.create(FavorApiService::class.java)
-        // ViewModel now uses ApiClient.service internally — token always attached.
-
         setupAvatar(user?.name ?: "")
         setupSearch()
         setupCategoryChips()
@@ -74,12 +70,10 @@ class FavorFeedActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        BadgeManager.refresh()
         binding.bottomNav.selectedItemId = R.id.nav_feed
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Avatar
-    // ─────────────────────────────────────────────────────────────────────────
     private fun setupAvatar(name: String) {
         binding.tvAvatar.text = initials(name)
         binding.tvAvatar.backgroundTintList = ColorStateList.valueOf(avatarColor(name))
@@ -91,6 +85,7 @@ class FavorFeedActivity : AppCompatActivity() {
                 when (item.itemId) {
                     R.id.action_logout -> {
                         prefs.clearAll()
+                        BadgeManager.clear()
                         startActivity(
                             Intent(this, LoginActivity::class.java).apply {
                                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or
@@ -125,9 +120,6 @@ class FavorFeedActivity : AppCompatActivity() {
         return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.size]
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Search
-    // ─────────────────────────────────────────────────────────────────────────
     private fun setupSearch() {
         binding.etSearch.setOnEditorActionListener { _, _, _ ->
             viewModel.searchQuery = binding.etSearch.text.toString().trim()
@@ -146,9 +138,6 @@ class FavorFeedActivity : AppCompatActivity() {
         })
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Category chips
-    // ─────────────────────────────────────────────────────────────────────────
     private fun setupCategoryChips() {
         chipAdapter = CategoryChipAdapter(CATEGORIES) { selected ->
             viewModel.activeCategory = selected
@@ -162,9 +151,6 @@ class FavorFeedActivity : AppCompatActivity() {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Favors RecyclerView
-    // ─────────────────────────────────────────────────────────────────────────
     private fun setupFavorsList() {
         favorAdapter = FavorCardAdapter(
             currentUserId = currentUserId,
@@ -186,9 +172,6 @@ class FavorFeedActivity : AppCompatActivity() {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Post banner
-    // ─────────────────────────────────────────────────────────────────────────
     private fun setupPostBanner() {
         binding.btnPostFavor.setOnClickListener {
             startActivity(Intent(this, PostFavorActivity::class.java))
@@ -196,9 +179,6 @@ class FavorFeedActivity : AppCompatActivity() {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Bottom nav
-    // ─────────────────────────────────────────────────────────────────────────
     private fun setupBottomNav() {
         binding.bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
@@ -223,15 +203,19 @@ class FavorFeedActivity : AppCompatActivity() {
                     overridePendingTransition(0, 0)
                     false
                 }
-                R.id.nav_profile  -> { true }
+                R.id.nav_profile -> {
+                    startActivity(Intent(this, ProfileActivity::class.java))
+                    overridePendingTransition(0, 0)
+                    false
+                }
                 else -> false
             }
         }
+        BadgeManager.badgeCount.observe(this) { count ->
+            binding.bottomNav.applyActivityBadge(count)
+        }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Observe ViewModel
-    // ─────────────────────────────────────────────────────────────────────────
     private fun observeViewModel() {
         viewModel.uiState.observe(this) { state ->
             binding.favorsLoading.visibility = View.GONE
@@ -271,9 +255,6 @@ class FavorFeedActivity : AppCompatActivity() {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Pagination row
-    // ─────────────────────────────────────────────────────────────────────────
     private fun rebuildPaginationRow(current: Int, total: Int) {
         binding.paginationRow.removeAllViews()
         if (total <= 1) { binding.paginationRow.visibility = View.GONE; return }
