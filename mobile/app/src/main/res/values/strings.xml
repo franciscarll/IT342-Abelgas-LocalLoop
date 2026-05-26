@@ -40,6 +40,7 @@
     <string name="error_invalid_credentials">Invalid email or password.</string>
     <string name="error_duplicate_email">This email is already registered.</string>
     <string name="error_no_internet">No internet connection. Please check your network.</string>
+    <string name="default_web_client_id">861451309332-relequ3lomdi6u4valu7l75l9rjo67mp.apps.googleusercontent.com</string>
 
     <string name="date_placeholder">Select a date (optional)</string>
 
