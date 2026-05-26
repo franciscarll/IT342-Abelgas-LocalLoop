@@ -77,6 +77,9 @@ dependencies {
     // Gson — for SharedPreferencesHelper saving/reading UserDto as JSON
     implementation("com.google.code.gson:gson:2.10.1")
 
+    // Google Sign-In
+    implementation("com.google.android.gms:play-services-auth:21.0.0")
+
     // ── Testing (unchanged) ────────────────────────────────────────────────
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

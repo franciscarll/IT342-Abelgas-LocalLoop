@@ -55,6 +55,16 @@
                     android:name=".features.myactivity.MyActivityActivity"
                     android:exported="false" />
 
+        <activity
+            android:name=".features.profile.ProfileActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".features.auth.SelectBarangayActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
     </application>
 
 </manifest>
