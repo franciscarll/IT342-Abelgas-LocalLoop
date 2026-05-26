@@ -11,6 +11,7 @@ import SelectBarangayPage from './features/auth/SelectBarangayPage';
 import DashboardPage from './features/dashboard/DashboardPage';
 import FavorFeedPage from './features/favors/FavorFeedPage';
 import CreateFavorPage from './features/favors/CreateFavorPage';
+import EditFavorPage from './features/favors/EditFavorPage';
 import FavorDetailPage from './features/favors/FavorDetailPage';
 import MyActivityPage from './features/profile/MyActivityPage';
 import AnnouncementsPage from './features/announcements/AnnouncementsPage';
@@ -26,14 +27,12 @@ function App() {
       <NotificationProvider>
         <BrowserRouter>
           <Routes>
-            {/* Public routes */}
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/oauth2/callback" element={<OAuth2CallbackPage />} />
             <Route path="/select-barangay" element={<SelectBarangayPage />} />
 
-            {/* Resident-protected routes */}
             <Route path="/dashboard" element={
               <ProtectedRoute><DashboardPage /></ProtectedRoute>
             } />
@@ -42,6 +41,9 @@ function App() {
             } />
             <Route path="/favors/new" element={
               <ProtectedRoute><CreateFavorPage /></ProtectedRoute>
+            } />
+            <Route path="/favors/:id/edit" element={
+              <ProtectedRoute><EditFavorPage /></ProtectedRoute>
             } />
             <Route path="/favors/:id" element={
               <ProtectedRoute><FavorDetailPage /></ProtectedRoute>
@@ -56,7 +58,6 @@ function App() {
               <ProtectedRoute><ProfilePage /></ProtectedRoute>
             } />
 
-            {/* Admin-only routes */}
             <Route path="/admin/dashboard" element={
               <AdminRoute><AdminDashboardPage /></AdminRoute>
             } />
