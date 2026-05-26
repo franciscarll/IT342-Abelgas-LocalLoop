@@ -2,6 +2,7 @@ package edu.cit.abelgas.localloop.shared.security;
 
 import edu.cit.abelgas.localloop.features.auth.User;
 import edu.cit.abelgas.localloop.features.auth.UserRepository;
+import edu.cit.abelgas.localloop.shared.email.EmailService;
 import edu.cit.abelgas.localloop.shared.security.jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,7 +10,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -20,10 +22,16 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final UserRepository userRepository;
     private final JwtUtil        jwtUtil;
+    private final EmailService emailService;
+    // inside the class:
+    private static final Logger log = LoggerFactory.getLogger(OAuth2SuccessHandler.class);
 
-    public OAuth2SuccessHandler(UserRepository userRepository, JwtUtil jwtUtil) {
+    public OAuth2SuccessHandler(UserRepository userRepository,
+                                JwtUtil jwtUtil,
+                                EmailService emailService) {
         this.userRepository = userRepository;
         this.jwtUtil        = jwtUtil;
+        this.emailService   = emailService;
     }
 
     @Override
@@ -42,22 +50,25 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             // ── Reuse existing account — never create duplicates ───────────────
             user = existingUser.get();
         } else {
-            // ── New Google user — password is null ────────────────────────────
             user = User.builder()
                     .name(name)
                     .email(email)
-                    .password(null)          // Google users start with no password
+                    .password(null)
                     .barangay("Not set")
                     .role("ROLE_USER")
                     .reputationScore(0)
                     .build();
             userRepository.save(user);
+
+            try {
+                emailService.sendWelcomeEmail(user.getName(), user.getEmail());
+            } catch (Exception e) {
+                log.warn("OAuth welcome email failed for {}: {}", user.getEmail(), e.getMessage());
+            }
         }
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
 
-        // ── KEY FIX: include hasPassword so the frontend knows immediately ─────
-        // whether to show "Set Password" or "Change Password" on the Profile page.
         boolean hasPassword = (user.getPassword() != null);
 
         String redirectUrl = "http://localhost:3000/oauth2/callback"

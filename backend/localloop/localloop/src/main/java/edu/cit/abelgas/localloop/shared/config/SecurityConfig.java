@@ -37,15 +37,14 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                        .sessionFixation(fixation -> fixation.migrateSession())
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .securityContext(ctx -> ctx.requireExplicitSave(true))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/register",
                                 "/api/auth/login",
                                 "/api/auth/logout",
+                                "/api/auth/mobile/google",
                                 "/login/oauth2/code/google",
                                 "/oauth2/**",
                                 "/login**",

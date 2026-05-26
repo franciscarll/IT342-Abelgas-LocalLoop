@@ -6,7 +6,7 @@ import edu.cit.abelgas.localloop.shared.dto.UserResponse;
 import edu.cit.abelgas.localloop.features.favor.FavorRepository;
 import edu.cit.abelgas.localloop.features.profile.ReputationHistoryRepository;
 import org.springframework.stereotype.Service;
-
+import org.springframework.cache.annotation.CacheEvict;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -91,6 +91,7 @@ public class UserService {
      * Updates barangay, name, or profileImageUrl.
      * Called by SelectBarangayPage after Google OAuth.
      */
+    @CacheEvict(value = "users", key = "#user.email")
     public UserResponse updateProfile(User user, Map<String, String> body) {
         User dbUser = userRepository.findById(user.getId())
                 .orElseThrow(() -> new RuntimeException("User not found"));

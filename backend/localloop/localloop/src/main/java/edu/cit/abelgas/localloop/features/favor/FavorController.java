@@ -86,10 +86,6 @@ public class FavorController {
         return ResponseEntity.ok(ApiResponse.success(favorService.claimFavor(id, user)));
     }
 
-    /**
-     * PUT /api/favors/{id}/cancel-claim
-     * Only the claimer can cancel. Deducts -1 rep from helper.
-     */
     @PutMapping("/{id}/cancel-claim")
     public ResponseEntity<ApiResponse<FavorResponse>> cancelClaim(
             @PathVariable Long id,
@@ -97,11 +93,6 @@ public class FavorController {
         return ResponseEntity.ok(ApiResponse.success(favorService.cancelClaim(id, user)));
     }
 
-    /**
-     * PUT /api/favors/{id}/reopen
-     * Only the requester can re-open a CLAIMED favor.
-     * Deducts -2 rep from the helper who abandoned.
-     */
     @PutMapping("/{id}/reopen")
     public ResponseEntity<ApiResponse<FavorResponse>> reopenFavor(
             @PathVariable Long id,
@@ -109,10 +100,6 @@ public class FavorController {
         return ResponseEntity.ok(ApiResponse.success(favorService.reopenFavor(id, user)));
     }
 
-    /**
-     * PUT /api/favors/{id}/complete
-     * Only the requester can confirm completion. Awards +1 rep to helper.
-     */
     @PutMapping("/{id}/complete")
     public ResponseEntity<ApiResponse<FavorResponse>> completeFavor(
             @PathVariable Long id,
