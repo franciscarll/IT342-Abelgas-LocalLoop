@@ -1,6 +1,7 @@
 package edu.cit.abelgas.localloop.shared.api
 
 import edu.cit.abelgas.localloop.features.auth.model.AuthData
+import edu.cit.abelgas.localloop.features.auth.model.GoogleAuthRequest
 import edu.cit.abelgas.localloop.features.auth.model.LoginRequest
 import edu.cit.abelgas.localloop.features.auth.model.RegisterRequest
 import edu.cit.abelgas.localloop.features.dashboard.model.AnnouncementDto
@@ -10,15 +11,20 @@ import edu.cit.abelgas.localloop.features.dashboard.model.PagedResponse
 import edu.cit.abelgas.localloop.features.dashboard.model.ReputationDto
 import edu.cit.abelgas.localloop.features.dashboard.model.RequesterStatsDto
 import edu.cit.abelgas.localloop.features.dashboard.model.WeatherDto
+import edu.cit.abelgas.localloop.features.profile.model.ProfileResponseDto
+import edu.cit.abelgas.localloop.features.profile.model.ProfileUpdateRequest
 import edu.cit.abelgas.localloop.features.profile.model.UserDto
 import edu.cit.abelgas.localloop.shared.model.ApiResponse
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -182,5 +188,32 @@ interface ApiService {
     suspend fun cancelClaim(
         @Path("id") favorId: Long
     ): Response<ApiResponse<edu.cit.abelgas.localloop.features.myactivity.model.ActivityFavorDto>>
+
+    // ── Profile ───────────────────────────────────────────────────────────────
+
+    /**
+     * GET /api/profile
+     * Returns full user profile (name, email, barangay, reputation, stats,
+     * profileImageUrl, createdAt, hasPassword).
+     */
+    @GET("profile")
+    suspend fun getProfile(): retrofit2.Response<ApiResponse<ProfileResponseDto>>
+
+    @PUT("users/profile")
+    suspend fun updateProfile(
+        @Body request: ProfileUpdateRequest
+    ): retrofit2.Response<ApiResponse<UserDto>>
+
+    @Multipart
+    @POST("profile/upload")
+    suspend fun uploadProfilePhoto(
+        @Part file: MultipartBody.Part
+    ): retrofit2.Response<ApiResponse<UserDto>>
+
+    // ── ADD THIS ──────────────────────────────────────────────────────────────
+    @POST("auth/mobile/google")
+    suspend fun googleSignIn(
+        @Body request: GoogleAuthRequest
+    ): Response<ApiResponse<AuthData>>
 
 }

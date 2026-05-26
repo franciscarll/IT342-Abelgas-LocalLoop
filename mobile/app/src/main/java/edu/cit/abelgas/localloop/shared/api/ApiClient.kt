@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
 
-    private const val BASE_URL = "http://127.0.0.1:8080/api/"
+    private const val BASE_URL = "http://192.168.1.5:8080/api/"
 
     private var prefs: SharedPreferencesHelper? = null
 
