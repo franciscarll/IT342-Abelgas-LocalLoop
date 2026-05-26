@@ -4,39 +4,64 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import edu.cit.abelgas.localloop.R
 import edu.cit.abelgas.localloop.shared.api.ApiClient
 import edu.cit.abelgas.localloop.databinding.ActivityRegisterBinding
+import edu.cit.abelgas.localloop.features.auth.model.GoogleAuthRequest
 import edu.cit.abelgas.localloop.features.auth.model.RegisterRequest
 import edu.cit.abelgas.localloop.features.dashboard.DashboardActivity
 import edu.cit.abelgas.localloop.shared.util.SharedPreferencesHelper
 import kotlinx.coroutines.launch
 import java.io.IOException
 
-/**
- * RegisterActivity — REFINED (visual only, logic unchanged)
- *
- * Changes:
- *  • showGeneralError / hideGeneralError now toggle cardRegisterError
- *    (the styled error card matching web errorMsg: #fff5f5 bg, #ffcdd2 border).
- *  • tvRegisterError is still the text inside — binding IDs unchanged.
- *  • All validation, API calls, and navigation identical to original.
- */
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterBinding
     private lateinit var prefs: SharedPreferencesHelper
+    private lateinit var googleSignInClient: GoogleSignInClient
     private var selectedBarangay: String = ""
+
+    // ── Activity Result Launcher for Google Sign-In ───────────────────────
+    private val googleSignInLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            handleGoogleSignInResult(account)
+        } catch (e: ApiException) {
+            showGeneralError("Google Sign-In failed: ${e.statusCode}")
+            setGoogleLoadingState(false)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
         prefs = SharedPreferencesHelper(this)
+        setupGoogleSignIn()
         setupBarangayDropdown()
         setupClickListeners()
+    }
+
+    // ── Google Sign-In Setup ──────────────────────────────────────────────
+    private fun setupGoogleSignIn() {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .requestProfile()
+            .build()
+
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
     }
 
     private fun setupBarangayDropdown() {
@@ -53,10 +78,74 @@ class RegisterActivity : AppCompatActivity() {
         binding.btnCreateAccount.setOnClickListener { attemptRegister() }
         binding.tvLogIn.setOnClickListener { finish() }
         binding.btnGoogle.setOnClickListener {
-            showGeneralError("Google sign-up will be available soon.")
+            startGoogleSignIn()
         }
     }
 
+    // ── Google Sign-In Flow ───────────────────────────────────────────────
+    private fun startGoogleSignIn() {
+        hideGeneralError()
+        setGoogleLoadingState(true)
+
+        // Always sign out first so the account picker always shows
+        googleSignInClient.signOut().addOnCompleteListener {
+            googleSignInLauncher.launch(googleSignInClient.signInIntent)
+        }
+    }
+
+    private fun handleGoogleSignInResult(account: GoogleSignInAccount) {
+        val idToken = account.idToken
+
+        if (idToken == null) {
+            showGeneralError("Failed to get Google token. Please try again.")
+            setGoogleLoadingState(false)
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                val response = ApiClient.service.googleSignIn(
+                    GoogleAuthRequest(idToken = idToken)
+                )
+
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body?.success == true && body.data != null) {
+                        val authData = body.data
+                        prefs.saveToken(authData.accessToken)
+                        prefs.saveUser(authData.user)
+
+                        // ── Route based on barangay ───────────────────────────
+                        if (authData.user.barangay.isNullOrBlank() ||
+                            authData.user.barangay == "Not set") {
+                            // New Google user — needs to pick barangay
+                            val intent = Intent(this@RegisterActivity, SelectBarangayActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            startActivity(intent)
+                            finish()
+                        } else {
+                            // Returning Google user — go straight to dashboard
+                            goToDashboard()
+                        }
+                    } else {
+                        showGeneralError(
+                            body?.error?.message ?: getString(R.string.error_generic)
+                        )
+                    }
+                } else {
+                    handleHttpError(response.code())
+                }
+            } catch (e: IOException) {
+                showGeneralError(getString(R.string.error_no_internet))
+            } catch (e: Exception) {
+                showGeneralError(getString(R.string.error_generic))
+            } finally {
+                setGoogleLoadingState(false)
+            }
+        }
+    }
+
+    // ── Email/Password Registration ───────────────────────────────────────
     private fun validateInputs(
         name: String,
         email: String,
@@ -175,10 +264,11 @@ class RegisterActivity : AppCompatActivity() {
         binding.actvBarangay.isEnabled = !isLoading
     }
 
-    /**
-     * Shows the styled error card (bg #FFF5F5, border #FFCDD2)
-     * matching the web app's errorMsg / apiError style.
-     */
+    private fun setGoogleLoadingState(isLoading: Boolean) {
+        binding.btnGoogle.isEnabled = !isLoading
+        binding.btnGoogle.text = if (isLoading) "Signing in…" else "Continue with Google"
+    }
+
     private fun showGeneralError(message: String) {
         binding.tvRegisterError.text = message
         binding.cardRegisterError.visibility = View.VISIBLE
